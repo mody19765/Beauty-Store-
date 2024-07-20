@@ -48,3 +48,28 @@ exports.deleteCustomer = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.searchCustomers = async (req, res) => {
+  try {
+      const { query } = req.query; // Get search query from request
+      if (!query) {
+          return res.status(400).json({ message: 'Query parameter is required' });
+      }
+
+      // Create a case-insensitive regular expression
+      const searchPattern = new RegExp(query, 'i'); 
+
+      // Search customers by name or email
+      const customers = await Customer.find({
+          $or: [
+              { name: searchPattern },
+              { email: searchPattern }
+          ]
+      });
+
+      // Respond with the found customers
+      res.status(200).json(customers);
+  } catch (error) {
+      res.status(500).json({ message: error.message });
+  }
+};

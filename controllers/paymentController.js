@@ -48,3 +48,25 @@ exports.deletePayment = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.searchPayments = async (req, res) => {
+  try {
+      const { query } = req.query;
+      if (!query) {
+          return res.status(400).json({ message: 'Query parameter is required' });
+      }
+
+      const searchPattern = new RegExp(query, 'i'); 
+
+      const payments = await Payment.find({
+          $or: [
+              { amount: searchPattern },  // Assumes `amount` is a string field; adjust if it's a number type
+              { payment_method: searchPattern }
+          ]
+      });
+
+      res.status(200).json(payments);
+  } catch (error) {
+      res.status(500).json({ message: error.message });
+  }
+};

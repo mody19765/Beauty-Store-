@@ -48,3 +48,21 @@ exports.deleteSession = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.searchSessions = async (req, res) => {
+  try {
+      const { query } = req.query; // Get search query from request
+      const searchPattern = new RegExp(query, 'i'); // Case-insensitive search
+
+      const sessions = await Session.find({
+          $or: [
+              { session_name: searchPattern },
+              { description: searchPattern }
+          ]
+      });
+
+      res.status(200).json(sessions);
+  } catch (error) {
+      res.status(500).json({ message: error.message });
+  }
+};

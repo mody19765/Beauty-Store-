@@ -48,3 +48,21 @@ exports.deleteEmployee = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.searchEmployees = async (req, res) => {
+  try {
+      const { query } = req.query; // Get search query from request
+      const searchPattern = new RegExp(query, 'i'); // Case-insensitive search
+
+      const employees = await Employee.find({
+          $or: [
+              { name: searchPattern },
+              { email: searchPattern }
+          ]
+      });
+
+      res.status(200).json(employees);
+  } catch (error) {
+      res.status(500).json({ message: error.message });
+  }
+};

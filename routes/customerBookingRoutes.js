@@ -7,5 +7,6 @@ router.get('/', customerBookingController.getAllCustomerBookings);
 router.get('/:id', customerBookingController.getCustomerBookingById);
 router.put('/:id', customerBookingController.updateCustomerBooking);
 router.delete('/:id', customerBookingController.deleteCustomerBooking);
+router.get('/search', customerBookingController.searchCustomerBookings);
 
 module.exports = router;
