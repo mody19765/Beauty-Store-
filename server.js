@@ -22,6 +22,9 @@ app.use('/payments', require('./routes/paymentRoutes'));
 app.use('/sessions', require('./routes/sessionRoutes'));
 app.use('/approvedBookings', require('./routes/approvedBookingRoutes'));
 app.use('/services',require('./routes/serviceRoutes'));
+app.use('/',(req,res)=>{
+res.json({message:"ساموعليكوووووووو"})
+})
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
