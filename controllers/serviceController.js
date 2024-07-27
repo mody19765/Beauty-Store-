@@ -48,3 +48,25 @@ exports.deleteService = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.searchServices = async (req, res) => {
+  try {
+    const { query } = req.query;
+    if (!query) {
+      return res.status(400).json({ message: 'Query parameter is required' });
+    }
+
+    const searchPattern = new RegExp(query, 'i');
+
+    const services = await Service.find({
+      $or: [
+        { service_name: searchPattern },
+        { description: searchPattern }
+      ]
+    });
+
+    res.status(200).json(services);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

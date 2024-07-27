@@ -7,5 +7,6 @@ router.get('/', designerController.getAllDesigners);
 router.get('/:id', designerController.getDesignerById);
 router.put('/:id', designerController.updateDesigner);
 router.delete('/:id', designerController.deleteDesigner);
+router.get('/search', designerController.searchDesigners);
 
 module.exports = router;

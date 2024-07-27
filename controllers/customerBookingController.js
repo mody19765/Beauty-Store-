@@ -48,3 +48,25 @@ exports.deleteCustomerBooking = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.searchCustomerBookings = async (req, res) => {
+  try {
+      const { query } = req.query;
+      if (!query) {
+          return res.status(400).json({ message: 'Query parameter is required' });
+      }
+
+      const searchPattern = new RegExp(query, 'i'); 
+
+      const customerBookings = await CustomerBooking.find({
+          $or: [
+              { service: searchPattern },
+              { date: searchPattern }  // Assumes `date` is a string field; adjust if it's a date type
+          ]
+      });
+
+      res.status(200).json(customerBookings);
+  } catch (error) {
+      res.status(500).json({ message: error.message });
+  }
+};
