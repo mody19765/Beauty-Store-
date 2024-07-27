@@ -24,7 +24,7 @@ app.use('/sessions', require('./routes/sessionRoutes'));
 app.use('/approvedBookings', require('./routes/approvedBookingRoutes'));
 app.use('/services', require('./routes/serviceRoutes'));
 app.use('/', (req, res) => {
-  res.json({ message: "ساموعووووووو" })
+  res.json({ message: "ساموعووووو" })
 })
 // Start server
 app.listen(PORT, () => {
