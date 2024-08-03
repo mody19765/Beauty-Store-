@@ -6,10 +6,8 @@ const cors = require("cors")
 // Initialize app
 const app = express();
 const PORT = process.env.PORT || 3000;
-
 // Connect to database
 connectDB();
-
 // Middleware
 app.use(bodyParser.json());
 app.use(cors())
