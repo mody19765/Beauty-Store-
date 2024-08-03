@@ -4,7 +4,8 @@ const mongoose = require('mongoose');
   name:  { type: String, required: true },
   role:  { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  branch_name:{ type: mongoose.Schema.Types.String, ref: 'Branch', required: true },
+  Phone: { type: Number, required: true, unique: true },
+  Branch_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Branch', required: true },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Employee', employeeSchema);
