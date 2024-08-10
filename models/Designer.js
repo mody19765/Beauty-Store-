@@ -5,7 +5,8 @@ const designerSchema = new mongoose.Schema({
   Branch_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Branch', required: true },
   phone_number: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
-  specialization: String
+  specialization: String,
+  service_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Service', required: true },
 },
   { timestamps: true });
 
