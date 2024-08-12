@@ -7,7 +7,6 @@ const designerSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   specialization: String,
   service_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Service', required: true },
-},
-  { timestamps: true });
+},{ timestamps: true });
 
 module.exports = mongoose.model('Designer', designerSchema);
