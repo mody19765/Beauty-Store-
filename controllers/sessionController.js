@@ -1,7 +1,27 @@
 const Session = require('../models/Session');
+const Designer = require('../models/Designer');
 
 exports.createSession = async (req, res) => {
   try {
+    const { session_date, designer_id } = req.body;
+    const sessionEndTime = new Date(session_date);
+    sessionEndTime.setMinutes(sessionEndTime.getMinutes() + 45); // Adding 45 minutes to session start time
+
+    // Check if the designer has another session that overlaps with the requested time
+    const existingSession = await Session.findOne({
+      designer_id,
+      $or: [
+        { 
+          session_date: { $lt: sessionEndTime }, 
+          session_end: { $gt: session_date }
+        }
+      ]
+    });
+
+    if (existingSession) {
+      return res.status(400).json({ message: 'This designer is already booked for the selected time.' });
+    }
+
     const session = new Session(req.body);
     await session.save();
     res.status(201).json(session);
