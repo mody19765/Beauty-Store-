@@ -1,30 +1,8 @@
 const Session = require('../models/Session');
 
-
 exports.createSession = async (req, res) => {
   try {
-    const { session_date, Branch_id, services, client_name } = req.body;
-
-    // Validate session start date
-    if (new Date(session_date) < new Date()) {
-      return res.status(400).json({ message: 'Session date must be in the future.' });
-    }
-
-    // Validate services
-    for (const service of services) {
-      if (new Date(service.service_start_time) < new Date()) {
-        return res.status(400).json({ message: 'Service start time must be a future date.' });
-      }
-    }
-
-    // Create new session object
-    const session = new Session({
-      session_date,
-      Branch_id,
-      services,
-      client_name
-    });
-
+    const session = new Session(req.body);
     await session.save();
     res.status(201).json(session);
   } catch (error) {
