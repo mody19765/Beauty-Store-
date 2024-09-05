@@ -2,10 +2,39 @@ const mongoose = require('mongoose');
 
 // Define the session schema
 const sessionSchema = new mongoose.Schema({
-  session_date: { type: Date, required: true },
-  Branch_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Branch', required: true },
-  designer_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Designer', required: true },
-  service_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Service', required: true },
+  session_date: { 
+    type: Date, 
+    required: true, 
+    validate: {
+      validator: function (value) {
+        return value >= new Date(); // Ensure session date is not in the past
+      },
+      message: 'Session date must be a future date.'
+    }
+  },
+  Branch_id: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Branch', 
+    required: true 
+  },
+  services: [{
+    service_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Service', required: true },
+    designer_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Designer', required: true },
+    service_start_time: { 
+      type: Date, 
+      required: true, 
+      validate: {
+        validator: function (value) {
+          return value >= new Date(); // Ensure service start time is not in the past
+        },
+        message: 'Service start time must be a future date.'
+      }
+    },
+    service_end_time: { 
+      type: Date,
+    },
+    price: { type: Number, required: true }
+  }],
   client_name: { type: mongoose.Schema.Types.String, ref: 'Customer', required: true },
   total_price: { type: Number, required: true }
 }, { timestamps: true });
