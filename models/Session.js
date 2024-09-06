@@ -2,16 +2,6 @@ const mongoose = require('mongoose');
 
 // Define the session schema
 const sessionSchema = new mongoose.Schema({
-  session_date: { 
-    type: Date, 
-    required: true, 
-    validate: {
-      validator: function (value) {
-        return value >= new Date(); // Ensure session date is not in the past
-      },
-      message: 'Session date must be a future date.'
-    }
-  },
   Branch_id: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Branch', 
@@ -43,9 +33,7 @@ const sessionSchema = new mongoose.Schema({
 sessionSchema.pre('validate', function (next) {
   // Check if each service's start time is after or equal to the session date
   for (const service of this.services) {
-    if (service.service_start_time < this.session_date) {
-      return next(new Error('Service start time must not be before the session start time.'));
-    }
+  
     // Calculate the service end time
     service.service_end_time = new Date(service.service_start_time.getTime() + 45 * 60000); // Add 45 minutes
   }
