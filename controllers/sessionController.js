@@ -1,12 +1,8 @@
 const Session = require('../models/Session');
 
-
 exports.createSession = async (req, res) => {
   try {
-    const {  Branch_id, services, client_name } = req.body;
-
-    // Validate session start date
-    
+    const { Branch_id, services, client_name } = req.body;
 
     // Validate services
     for (const service of services) {
@@ -15,6 +11,9 @@ exports.createSession = async (req, res) => {
       if (startTime < new Date()) {
         return res.status(400).json({ message: 'Service start time must be a future date.' });
       }
+
+      // Calculate the service end time
+      const endTime = new Date(startTime.getTime() + 45 * 60000); // Add 45 minutes to start time
 
       // Ensure no overlapping assignments for the same designer
       const overlappingSession = await Session.findOne({
@@ -25,15 +24,15 @@ exports.createSession = async (req, res) => {
             'services.service_end_time': { $gt: startTime }
           },
           {
-            'services.service_start_time': { $lt: new Date(startTime.getTime() + 45 * 60000) },
-            'services.service_end_time': { $gte: new Date(startTime.getTime() + 45 * 60000) }
+            'services.service_start_time': { $lt: endTime },
+            'services.service_end_time': { $gte: endTime }
           }
         ]
       });
 
       if (overlappingSession) {
         return res.status(400).json({
-          message: `Designer is already assigned to another service between ${service.service_start_time} and ${service.service_end_time}.`
+          message: `Designer is already assigned to another service between ${startTime.toISOString()} and ${endTime.toISOString()}.`
         });
       }
     }
@@ -51,8 +50,6 @@ exports.createSession = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
-
-
 
 
 exports.getAllSessions = async (req, res) => {
