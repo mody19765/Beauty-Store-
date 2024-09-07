@@ -21,7 +21,7 @@ const sessionSchema = new mongoose.Schema({
       }
     },
     service_end_time: { 
-      type: Date,
+      type: Date
     },
     price: { type: Number, required: true }
   }],
@@ -31,10 +31,16 @@ const sessionSchema = new mongoose.Schema({
 
 // Middleware to automatically set end time and calculate total price
 sessionSchema.pre('validate', function (next) {
-  this.services.forEach(service => {
+  // Check if each service's start time is after or equal to the session date
+  for (const service of this.services) {
+    // Ensure service_start_time is a Date object
+    if (!(service.service_start_time instanceof Date)) {
+      return next(new Error('Invalid service start time.'));
+    }
+
     // Calculate the service end time
     service.service_end_time = new Date(service.service_start_time.getTime() + 45 * 60000); // Add 45 minutes
-  });
+  }
 
   // Calculate total price
   this.total_price = this.services.reduce((acc, service) => acc + service.price, 0);
@@ -43,4 +49,4 @@ sessionSchema.pre('validate', function (next) {
 });
 
 module.exports = mongoose.model('Session', sessionSchema);
-                  
+  
