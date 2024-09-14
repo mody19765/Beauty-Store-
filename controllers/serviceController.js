@@ -52,18 +52,25 @@ exports.deleteService = async (req, res) => {
 exports.searchServices = async (req, res) => {
   try {
     const { query } = req.query;
-    if (!query) {
-      return res.status(400).json({ message: 'Query parameter is required' });
+
+    // Check if query is provided and not empty
+    if (!query || query.trim() === '') {
+      return res.status(400).json({ message: 'Query parameter is required and should not be empty.' });
     }
 
-    const searchPattern = new RegExp(query, 'i');
+    const searchPattern = new RegExp(query.trim(), 'i'); // Create a case-insensitive regex for search
 
+    // Perform search on service_name and description only, avoid searching by _id
     const services = await Service.find({
       $or: [
-        { service_name: searchPattern },
+        { name: searchPattern },
         { description: searchPattern }
       ]
     });
+
+    if (services.length === 0) {
+      return res.status(404).json({ message: 'No services found matching the search query.' });
+    }
 
     res.status(200).json(services);
   } catch (error) {

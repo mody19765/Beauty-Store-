@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const servicesController = require('../controllers/serviceController');
 
+// Search services
+router.get('/search', servicesController.searchServices);
+
 // Create a new service
 router.post('/', servicesController.createService);
 
@@ -16,6 +19,4 @@ router.put('/:id', servicesController.updateService);
 
 // Delete service by ID
 router.delete('/:id', servicesController.deleteService);
-router.get('/search', servicesController.searchServices);
-
 module.exports = router;
