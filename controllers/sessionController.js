@@ -77,7 +77,7 @@ exports.getSessionById = async (req, res) => {
 };
 exports.updateSession = async (req, res) => {
   try {
-    const { services } = req.body;
+    const { services, client_name } = req.body; // Include client_name
     const sessionId = req.params.id;
 
     // Check if services is an array and not empty
@@ -162,8 +162,12 @@ exports.updateSession = async (req, res) => {
       };
     });
 
-    // Update session with processed services
+    // Update session with processed services and client name
     existingSession.services = updatedServices;
+    if (client_name) {
+      existingSession.client_name = client_name; // Update client name if provided
+    }
+
     await existingSession.save();
 
     res.status(200).json(existingSession);
@@ -171,6 +175,7 @@ exports.updateSession = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
                                          
 
 exports.deleteSession = async (req, res) => {
