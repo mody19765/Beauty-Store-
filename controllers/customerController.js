@@ -63,8 +63,8 @@ exports.searchCustomers = async (req, res) => {
     // Search in name and email fields
     const customers = await Customer.find({
       $or: [
-        { name: searchPattern },
-        { email: searchPattern }
+        { first_name: searchPattern },
+        { phone_number: searchPattern }
       ]
     });
 

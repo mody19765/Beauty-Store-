@@ -202,8 +202,8 @@ exports.searchSessions = async (req, res) => {
     // Search in session_name and description fields
     const sessions = await Session.find({
       $or: [
-        { session_name: searchPattern },
-        { description: searchPattern }
+        { client_name: searchPattern },
+        { Branch_id: searchPattern }
       ]
     });
 

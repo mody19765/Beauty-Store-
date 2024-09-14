@@ -64,7 +64,7 @@ exports.searchDesigners = async (req, res) => {
     const designers = await Designer.find({
       $or: [
         { name: searchPattern },
-        { specialty: searchPattern }
+        { specialization: searchPattern }
       ]
     });
 
