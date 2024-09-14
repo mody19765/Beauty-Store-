@@ -51,22 +51,29 @@ exports.deleteDesigner = async (req, res) => {
 
 exports.searchDesigners = async (req, res) => {
   try {
-      const { query } = req.query;
-      if (!query) {
-          return res.status(400).json({ message: 'Query parameter is required' });
-      }
+    const { query } = req.query;
 
-      const searchPattern = new RegExp(query, 'i'); // Case-insensitive search
+    // Validate the search query
+    if (!query || query.trim() === '') {
+      return res.status(400).json({ message: 'Query parameter is required and should not be empty.' });
+    }
 
-      const designers = await Designer.find({
-          $or: [
-              { name: searchPattern },
-              { specialty: searchPattern }
-          ]
-      });
+    const searchPattern = new RegExp(query.trim(), 'i'); // Case-insensitive search
 
-      res.status(200).json(designers);
+    // Search in name and specialty fields
+    const designers = await Designer.find({
+      $or: [
+        { name: searchPattern },
+        { specialty: searchPattern }
+      ]
+    });
+
+    if (designers.length === 0) {
+      return res.status(404).json({ message: 'No designers found matching the search query.' });
+    }
+
+    res.status(200).json(designers);
   } catch (error) {
-      res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };

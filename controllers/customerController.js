@@ -51,25 +51,29 @@ exports.deleteCustomer = async (req, res) => {
 
 exports.searchCustomers = async (req, res) => {
   try {
-      const { query } = req.query; // Get search query from request
-      if (!query) {
-          return res.status(400).json({ message: 'Query parameter is required' });
-      }
+    const { query } = req.query;
 
-      // Create a case-insensitive regular expression
-      const searchPattern = new RegExp(query, 'i'); 
+    // Validate the search query
+    if (!query || query.trim() === '') {
+      return res.status(400).json({ message: 'Query parameter is required and should not be empty.' });
+    }
 
-      // Search customers by name or email
-      const customers = await Customer.find({
-          $or: [
-              { name: searchPattern },
-              { email: searchPattern }
-          ]
-      });
+    const searchPattern = new RegExp(query.trim(), 'i'); // Case-insensitive search
 
-      // Respond with the found customers
-      res.status(200).json(customers);
+    // Search in name and email fields
+    const customers = await Customer.find({
+      $or: [
+        { name: searchPattern },
+        { email: searchPattern }
+      ]
+    });
+
+    if (customers.length === 0) {
+      return res.status(404).json({ message: 'No customers found matching the search query.' });
+    }
+
+    res.status(200).json(customers);
   } catch (error) {
-      res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };

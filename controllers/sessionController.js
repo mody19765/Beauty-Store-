@@ -190,15 +190,26 @@ exports.deleteSession = async (req, res) => {
 
 exports.searchSessions = async (req, res) => {
   try {
-    const { query } = req.query; // Get search query from request
-    const searchPattern = new RegExp(query, 'i'); // Case-insensitive search
+    const { query } = req.query;
 
+    // Validate the search query
+    if (!query || query.trim() === '') {
+      return res.status(400).json({ message: 'Query parameter is required and should not be empty.' });
+    }
+
+    const searchPattern = new RegExp(query.trim(), 'i'); // Case-insensitive search
+
+    // Search in session_name and description fields
     const sessions = await Session.find({
       $or: [
         { session_name: searchPattern },
         { description: searchPattern }
       ]
     });
+
+    if (sessions.length === 0) {
+      return res.status(404).json({ message: 'No sessions found matching the search query.' });
+    }
 
     res.status(200).json(sessions);
   } catch (error) {
