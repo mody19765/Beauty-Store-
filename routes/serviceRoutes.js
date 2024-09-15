@@ -1,22 +1,18 @@
 const express = require('express');
 const router = express.Router();
+const { authenticateToken, authorizeRole } = require('../middlewares/authMiddleware');
 const servicesController = require('../controllers/serviceController');
 
-// Search services
-router.get('/search', servicesController.searchServices);
+// Apply authentication middleware
+router.use(authenticateToken);
 
-// Create a new service
-router.post('/', servicesController.createService);
-
-// Get all services
+// Public route to get services
 router.get('/', servicesController.getAllServices);
-
-// Get service by ID
 router.get('/:id', servicesController.getServiceById);
 
-// Update service by ID
-router.put('/:id', servicesController.updateService);
+// Only admins can create, update, or delete services
+router.post('/', authorizeRole('admin'), servicesController.createService);
+router.put('/:id', authorizeRole('admin'), servicesController.updateService);
+router.delete('/:id', authorizeRole('admin'), servicesController.deleteService);
 
-// Delete service by ID
-router.delete('/:id', servicesController.deleteService);
 module.exports = router;
