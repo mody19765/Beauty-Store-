@@ -77,7 +77,7 @@ exports.getSessionById = async (req, res) => {
 };
 exports.updateSession = async (req, res) => {
   try {
-    const { services } = req.body;
+    const { services, client_name } = req.body; // Include client_name
     const sessionId = req.params.id;
 
     // Check if services is an array and not empty
@@ -162,8 +162,12 @@ exports.updateSession = async (req, res) => {
       };
     });
 
-    // Update session with processed services
+    // Update session with processed services and client name
     existingSession.services = updatedServices;
+    if (client_name) {
+      existingSession.client_name = client_name; // Update client name if provided
+    }
+
     await existingSession.save();
 
     res.status(200).json(existingSession);
@@ -171,6 +175,7 @@ exports.updateSession = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
                                          
 
 exports.deleteSession = async (req, res) => {
@@ -185,15 +190,26 @@ exports.deleteSession = async (req, res) => {
 
 exports.searchSessions = async (req, res) => {
   try {
-    const { query } = req.query; // Get search query from request
-    const searchPattern = new RegExp(query, 'i'); // Case-insensitive search
+    const { query } = req.query;
 
+    // Validate the search query
+    if (!query || query.trim() === '') {
+      return res.status(400).json({ message: 'Query parameter is required and should not be empty.' });
+    }
+
+    const searchPattern = new RegExp(query.trim(), 'i'); // Case-insensitive search
+
+    // Search in session_name and description fields
     const sessions = await Session.find({
       $or: [
-        { session_name: searchPattern },
-        { description: searchPattern }
+        { client_name: searchPattern },
+        { Branch_id: searchPattern }
       ]
     });
+
+    if (sessions.length === 0) {
+      return res.status(404).json({ message: 'No sessions found matching the search query.' });
+    }
 
     res.status(200).json(sessions);
   } catch (error) {

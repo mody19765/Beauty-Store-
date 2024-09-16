@@ -51,9 +51,16 @@ exports.deleteEmployee = async (req, res) => {
 
 exports.searchEmployees = async (req, res) => {
   try {
-    const { query } = req.query; // Get search query from request
-    const searchPattern = new RegExp(query, 'i'); // Case-insensitive search
+    const { query } = req.query;
 
+    // Validate the search query
+    if (!query || query.trim() === '') {
+      return res.status(400).json({ message: 'Query parameter is required and should not be empty.' });
+    }
+
+    const searchPattern = new RegExp(query.trim(), 'i'); // Case-insensitive search
+
+    // Search in name and email fields
     const employees = await Employee.find({
       $or: [
         { name: searchPattern },
@@ -61,8 +68,13 @@ exports.searchEmployees = async (req, res) => {
       ]
     });
 
+    if (employees.length === 0) {
+      return res.status(404).json({ message: 'No employees found matching the search query.' });
+    }
+
     res.status(200).json(employees);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
