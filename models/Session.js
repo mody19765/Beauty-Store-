@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 // Define the session schema
 const sessionSchema = new mongoose.Schema({
+phone_number: { type: String, required: true, unique: true },
   Branch_id: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Branch', 
