@@ -2,7 +2,7 @@ const Session = require('../models/Session');
 
 exports.createSession = async (req, res) => {
   try {
-    const { Branch_id, services, client_name } = req.body;
+    const { Branch_id, services, client_name,phone_number } = req.body;
 
     // Validate service data
     for (const service of services) {
@@ -37,6 +37,7 @@ exports.createSession = async (req, res) => {
     const session = new Session({
       Branch_id,
       services,
+      phone_number,
       client_name
     });
 
