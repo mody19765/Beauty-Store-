@@ -1,11 +1,18 @@
 const express = require('express');
 const router = express.Router();
+const { authenticateToken, authorizeRole } = require('../middlewares/authMiddleware');
 const sessionController = require('../controllers/sessionController');
 
-router.post('/', sessionController.createSession);
+// Apply authentication middleware
+router.use(authenticateToken);
+
+// Public route to get sessions
 router.get('/', sessionController.getAllSessions);
 router.get('/:id', sessionController.getSessionById);
-router.put('/:id', sessionController.updateSession);
-router.delete('/:id', sessionController.deleteSession);
-router.get('/search', sessionController.searchSessions);
+
+// Only admins can create, update, or delete sessions
+router.post('/', authorizeRole('admin'), sessionController.createSession);
+router.put('/:id', authorizeRole('admin'), sessionController.updateSession);
+router.delete('/:id', authorizeRole('admin'), sessionController.deleteSession);
+
 module.exports = router;

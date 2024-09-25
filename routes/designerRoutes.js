@@ -1,12 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const designerController = require('../controllers/designerController');
+const { authenticateToken, authorizeRole } = require('../middlewares/authMiddleware');
 
-router.post('/', designerController.createDesigner);
-router.get('/', designerController.getAllDesigners);
+// Apply authentication middleware
+router.use(authenticateToken);
+
+// Only admins can create, update, or delete designers
+router.get('/', designerController.getAllDesigners); 
+router.post('/', authorizeRole('admin'), designerController.createDesigner);
 router.get('/:id', designerController.getDesignerById);
-router.put('/:id', designerController.updateDesigner);
-router.delete('/:id', designerController.deleteDesigner);
-router.get('/search', designerController.searchDesigners);
+router.put('/:id', authorizeRole('admin'), designerController.updateDesigner);
+router.delete('/:id', authorizeRole('admin'), designerController.deleteDesigner);
 
 module.exports = router;
