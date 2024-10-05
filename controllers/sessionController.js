@@ -3,7 +3,7 @@ const { log } = require('winston');
 const Session = require('../models/Session');
 exports.createSession = async (req, res) => {
   try {
-    const { Branch_id, services, client_name } = req.body;
+    const { Branch_id, services, client_name,phone_number } = req.body;
 
     // Validate the input for services and branch ID
     if (!Branch_id || !services || !Array.isArray(services) || services.length === 0) {
@@ -26,14 +26,16 @@ exports.createSession = async (req, res) => {
         // Calculate end time (45 minutes after start time)
         const endTime = new Date(startTime.getTime() + 45 * 60000);
 
-        // Ensure no overlapping services for the designer
-        const overlappingSession = await Session.findOne({
-          'services.designer_id': service.designer_id,
-          $or: [
-            { 'services.service_start_time': { $lt: endTime } },
-            { 'services.service_end_time': { $gt: startTime } }
-          ]
-        });
+      // Ensure no overlapping assignments for the same designer
+      const overlappingSession = await Session.findOne({
+        'services.designer_id': service.designer_id,
+        $or: [
+          {
+            'services.service_start_time': { $lt: endTime },
+            'services.service_end_time': { $gt: startTime }
+          }
+        ]
+      });
 
         if (overlappingSession) {
           return { error: `Designer is already assigned to another service between ${startTime} and ${endTime}.` };
@@ -53,6 +55,7 @@ exports.createSession = async (req, res) => {
     const session = new Session({
       Branch_id,
       services,
+      phone_number,
       client_name
     });
 
