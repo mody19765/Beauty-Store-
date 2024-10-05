@@ -24,7 +24,7 @@ exports.createSession = async (req, res) => {
             'services.service_end_time': { $gt: startTime }
           }
         ]
-      });
+      })
 
       if (overlappingSession) {
         return res.status(400).json({
