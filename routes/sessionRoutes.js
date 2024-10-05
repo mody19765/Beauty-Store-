@@ -9,3 +9,4 @@ router.put('/:id', sessionController.updateSession);
 router.delete('/:id', sessionController.deleteSession);
 router.get('/search', sessionController.searchSessions);
 module.exports = router;
+
