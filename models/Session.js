@@ -7,6 +7,9 @@ const sessionSchema = new mongoose.Schema({
     ref: 'Branch', 
     required: true 
   },
+
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' } // Assuming sessions are created by a user
+,
   services: [{
     service_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Service', required: true },
     designer_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Designer', required: true },
