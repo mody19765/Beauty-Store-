@@ -17,7 +17,7 @@ connectDB();
 // Middleware
 app.use(bodyParser.json());
 app.use(cors({
-  origin: 'https://beauty-store-alpha.vercel.app', // Replace with your frontend base URL (without the path)
+  origin: 'https://beauty-store-pi.vercel.app/', // Replace with your frontend base URL (without the path)
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true, // If you are using cookies or need credentials
   allowedHeaders: ['Content-Type', 'Authorization'], // Add any additional headers you are using
