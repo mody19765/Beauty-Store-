@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 
 
 // CORS Middleware with multiple allowed origins
-const allowedOrigins = ['https://beauty-store-pi.vercel.app', 'https://beauty-store-alpha.vercel.app'];
+const allowedOrigins = ['https://beauty-store-pi.vercel.app', 'https://beauty-store-alpha.vercel.app','http://localhost:3000'];
 
 app.use(cors({
   origin: (origin, callback) => {
