@@ -17,23 +17,26 @@ connectDB();
 // Middleware
 app.use(bodyParser.json());
 
-
-// CORS Middleware with multiple allowed origins
-
-
+// CORS Setup
+const allowedOrigins = ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app'];
 const corsOptions = {
-  origin: ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app', 'https://beauty-store-alpha.vercel.app/login/auth/admin-login'], // Allow frontend origins
+  origin: function (origin, callback) {
+    // If the request origin is in the allowedOrigins list, allow it
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true, // Allow cookies/auth headers
   allowedHeaders: ['Content-Type', 'Authorization'],
-  headers: {
-    'Access-Control-Allow-Origin': "*"
-  } // Allow headers if needed
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Pre-flight requests handling
 
+// Preflight request handling for all routes
+app.options('*', cors(corsOptions));
 
 
 
