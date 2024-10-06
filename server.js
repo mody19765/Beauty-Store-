@@ -19,23 +19,16 @@ app.use(bodyParser.json());
 
 
 // CORS Middleware with multiple allowed origins
-const allowedOrigins = ['https://beauty-store-pi.vercel.app', 'https://beauty-store-alpha.vercel.app','http://localhost:3000'];
 
-app.use(cors({
-  origin: (origin, callback) => {
-    // Check if the request origin is in the allowed origins array
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+
+const corsOptions = {
+  origin: ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+  credentials: true, // Allow credentials such as cookies or authorization headers
+  allowedHeaders: ['Content-Type', 'Authorization'], // Include headers if needed
+};
 
-app.options('*', cors()); // Enable CORS for pre-flight requests
+app.use(cors(corsOptions));
 
 
 
