@@ -22,13 +22,14 @@ app.use(bodyParser.json());
 
 
 const corsOptions = {
-  origin: ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app'],
+  origin: ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app'], // Allow frontend origins
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true, // Allow credentials such as cookies or authorization headers
-  allowedHeaders: ['Content-Type', 'Authorization'], // Include headers if needed
+  credentials: true, // Allow cookies/auth headers
+  allowedHeaders: ['Content-Type', 'Authorization'], // Allow headers if needed
 };
 
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Pre-flight requests handling
 
 
 
@@ -59,3 +60,40 @@ bcrypt.hash(password, saltRounds, function (err, hash) {
   if (err) throw err;
   console.log('Hashed password:', hash);
 });
+
+/**
+ * const handleLogin = async () => {
+  console.log('Attempting to login...');
+  setError(''); 
+  try {
+    const response = await axios.post('http://beauty-store-alpha.vercel.app/login/auth/admin-login', {
+      email: email, 
+      password: password 
+    }, {
+      withCredentials: true 
+    });
+
+    if (response.data.token) {
+      console.log('Token:', response.data.token);
+      localStorage.setItem('token', response.data.token); 
+      navigate('/'); // Redirect to home page
+    } else {
+      setError('Login failed, please check your credentials.'); 
+    }
+  } catch (error) {
+    console.error('Error logging in:', error);
+    setError('Login failed, please try again.'); 
+  }
+};
+
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ */
