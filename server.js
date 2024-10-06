@@ -16,21 +16,29 @@ connectDB();
 
 // Middleware
 app.use(bodyParser.json());
+
+
+// CORS Middleware with multiple allowed origins
+const allowedOrigins = ['https://beauty-store-pi.vercel.app', 'https://beauty-store-alpha.vercel.app'];
+
 app.use(cors({
-  origin: 'https://beauty-store-pi.vercel.app/', // Replace with your frontend base URL (without the path)
+  origin: (origin, callback) => {
+    // Check if the request origin is in the allowed origins array
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true, // If you are using cookies or need credentials
-  allowedHeaders: ['Content-Type', 'Authorization'], // Add any additional headers you are using
-
-}));
-app.use(cors({
-  origin: 'https://beauty-store-alpha.vercel.app', 
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
+app.options('*', cors()); // Enable CORS for pre-flight requests
 
-app.options('*', cors()); // Enable CORS for all pre-flight requests
+
+
 
 // Routes
 app.use('/login', require('./routes/authRoutes')); // Auth routes
