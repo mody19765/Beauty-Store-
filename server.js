@@ -20,9 +20,8 @@ app.use(cors({
   origin: 'https://beauty-store-alpha.vercel.app', // Replace with your frontend base URL (without the path)
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true, // If you are using cookies or need credentials
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  allowedHeaders: ['Content-Type', 'Authorization'], // Add any additional headers you are using
+
 }));
 
 app.options('*', cors()); // Enable CORS for all pre-flight requests
