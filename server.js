@@ -25,6 +25,7 @@ app.use(cors({
   },
 }));
 
+app.options('*', cors()); // Enable CORS for all pre-flight requests
 
 // Routes
 app.use('/login', require('./routes/authRoutes')); // Auth routes
