@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const connectDB = require('./config/dbConfig');
 const cors = require('cors');
 const authMiddleware = require('./middlewares/authMiddleware');
-const dotnev=require('dotenv')
+const dotnev = require('dotenv')
 dotnev.config()
 
 // Initialize app
@@ -16,7 +16,12 @@ connectDB();
 
 // Middleware
 app.use(bodyParser.json());
-app.use(cors());
+app.use(cors({
+  origin: 'https://beauty-store-alpha.vercel.app', // Replace with your frontend base URL (without the path)
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true, // If you are using cookies or need credentials
+}));
+
 
 // Routes
 app.use('/login', require('./routes/authRoutes')); // Auth routes
@@ -40,7 +45,7 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const password = '123'; // Replace with your password
 
-bcrypt.hash(password, saltRounds, function(err, hash) {
+bcrypt.hash(password, saltRounds, function (err, hash) {
   if (err) throw err;
   console.log('Hashed password:', hash);
 });
