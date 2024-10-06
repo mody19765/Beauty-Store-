@@ -23,6 +23,12 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'], // Add any additional headers you are using
 
 }));
+app.use(cors({
+  origin: 'https://beauty-store-alpha.vercel.app', 
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
+
 
 app.options('*', cors()); // Enable CORS for all pre-flight requests
 
