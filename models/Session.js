@@ -2,11 +2,15 @@ const mongoose = require('mongoose');
 
 // Define the session schema
 const sessionSchema = new mongoose.Schema({
+phone_number: { type: String},
   Branch_id: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Branch', 
     required: true 
   },
+
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' } // Assuming sessions are created by a user
+,
   services: [{
     service_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Service', required: true },
     designer_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Designer', required: true },

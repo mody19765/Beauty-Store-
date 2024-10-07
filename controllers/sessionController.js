@@ -1,19 +1,30 @@
-const Session = require('../models/Session');
 
+const { log } = require('winston');
+const Session = require('../models/Session');
 exports.createSession = async (req, res) => {
   try {
-    const { Branch_id, services, client_name } = req.body;
+    const { Branch_id, services, client_name,phone_number } = req.body;
 
-    // Validate service data
-    for (const service of services) {
-      const startTime = new Date(service.service_start_time);
+    // Validate the input for services and branch ID
+    if (!Branch_id || !services || !Array.isArray(services) || services.length === 0) {
+      return res.status(400).json({ message: 'Branch_id and services must be provided and services should be an array.' });
+    }
 
-      if (startTime < new Date()) {
-        return res.status(400).json({ message: 'Service start time must be a future date.' });
-      }
+    // Current time for validation
+    const currentTime = new Date();
 
-      // Calculate end time based on the start time and ensure no overlapping
-      const endTime = new Date(startTime.getTime() + 45 * 60000); // 45 minutes later
+    // Check service times and designer availability in parallel
+    const serviceValidations = await Promise.all(
+      services.map(async (service) => {
+        const startTime = new Date(service.service_start_time);
+
+        // Validate if service start time is in the future
+        if (startTime <= currentTime) {
+          return { error: `Service start time for ${service.service_name} must be a future date.` };
+        }
+
+        // Calculate end time (45 minutes after start time)
+        const endTime = new Date(startTime.getTime() + 45 * 60000);
 
       // Ensure no overlapping assignments for the same designer
       const overlappingSession = await Session.findOne({
@@ -26,26 +37,38 @@ exports.createSession = async (req, res) => {
         ]
       });
 
-      if (overlappingSession) {
-        return res.status(400).json({
-          message: `Designer is already assigned to another service between ${service.service_start_time} and ${endTime}.`
-        });
-      }
+        if (overlappingSession) {
+          return { error: `Designer is already assigned to another service between ${startTime} and ${endTime}.` };
+        }
+
+        return { success: true };
+      })
+    );
+
+    // Check for errors in service validations
+    const failedValidation = serviceValidations.find((result) => result.error);
+    if (failedValidation) {
+      return res.status(400).json({ message: failedValidation.error });
     }
 
     // Create new session object
     const session = new Session({
       Branch_id,
       services,
+      phone_number,
       client_name
     });
 
+    // Save session to the database
     await session.save();
     res.status(201).json(session);
+
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    log.error('Error creating session:', error);
+    res.status(500).json({ message: 'An error occurred while creating the session.' });
   }
 };
+
 
 
 exports.getAllSessions = async (req, res) => {
@@ -212,6 +235,102 @@ exports.searchSessions = async (req, res) => {
     }
 
     res.status(200).json(sessions);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+
+// Update a specific service within a session
+exports.updateServiceInSession = async (req, res) => {
+  try {
+    const { sessionId, serviceId } = req.params;
+    const { service_name, service_start_time, service_price, designer_id } = req.body;
+
+    // Validate required fields
+    if (!service_name || !service_start_time || !designer_id) {
+      return res.status(400).json({ message: 'Missing required fields: service_name, service_start_time, and designer_id' });
+    }
+
+    // Validate the session
+    const session = await Session.findById(sessionId);
+    if (!session) {
+      return res.status(404).json({ message: 'Session not found' });
+    }
+
+    // Find the service to update
+    const service = session.services.id(serviceId);
+    if (!service) {
+      return res.status(404).json({ message: 'Service not found' });
+    }
+
+    // Calculate end time (45 minutes after start time)
+    const startTime = new Date(service_start_time);
+    const endTime = new Date(startTime.getTime() + 45 * 60000);
+
+    // Check for overlapping designer bookings
+    const allOtherSessions = await Session.find({ _id: { $ne: sessionId } });
+    const designerSchedule = allOtherSessions.reduce((schedule, session) => {
+      session.services.forEach((service) => {
+        if (!schedule[service.designer_id]) {
+          schedule[service.designer_id] = [];
+        }
+        schedule[service.designer_id].push({
+          startTime: new Date(service.service_start_time),
+          endTime: new Date(service.service_end_time),
+        });
+      });
+      return schedule;
+    }, {});
+
+    // Validate against designer's existing schedule
+    if (designerSchedule[designer_id]) {
+      for (const scheduled of designerSchedule[designer_id]) {
+        if (
+          (startTime >= scheduled.startTime && startTime < scheduled.endTime) ||
+          (endTime > scheduled.startTime && endTime <= scheduled.endTime)
+        ) {
+          return res.status(400).json({
+            message: `Designer is already booked between ${scheduled.startTime.toISOString()} and ${scheduled.endTime.toISOString()}`
+          });
+        }
+      }
+    }
+
+    // Update the service
+    service.service_name = service_name;
+    service.service_start_time = startTime.toISOString();
+    service.service_end_time = endTime.toISOString();
+    service.service_price = service_price;
+    service.designer_id = designer_id;
+
+    await session.save();
+    res.status(200).json({ message: 'Service updated successfully', session });
+
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating service', error: error.message });
+  }
+};
+
+
+// Delete Service from Session
+exports.deleteServiceFromSession = async (req, res) => {
+  try {
+    const { sessionId, serviceId } = req.params;
+
+    const session = await Session.findById(sessionId);
+    if (!session) return res.status(404).json({ message: 'Session not found' });
+
+    const service = session.services.id(serviceId);
+
+console.log(session.services);
+    if (!service) return res.status(404).json({ message: 'Service not found' });
+
+    service.remove();
+    await session.save();
+
+    res.status(200).json({ message: 'Service deleted successfully', session });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
