@@ -1,7 +1,7 @@
 module.exports = {
   service: 'Gmail', // or any email service you're using
   auth: {
-    user: "mody19765@gmail.com",
-    pass: "Mo-22111998"
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   }
 };

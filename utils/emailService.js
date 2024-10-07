@@ -5,8 +5,8 @@ exports.sendInvitationEmail = async (email, token) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
+      user: process.env.EMAIL_USER, // Correct user
+      pass: process.env.EMAIL_PASS, // Use correct pass
     },
   });
 
@@ -34,7 +34,7 @@ exports.sendPasswordResetEmail = async (email, token) => {
     from: process.env.EMAIL_USER,
     to: email,
     subject: 'Password Reset',
-    text: `Click on the link to reset your password: ${process.env.CLIENT_URL}/reset-password/${token}`,
+    text: `Click on the link to reset your password:http://localhost:3000/reset-password/${token}`,
   };
 
   await transporter.sendMail(mailOptions);

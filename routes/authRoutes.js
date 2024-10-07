@@ -1,20 +1,28 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
+const authAdmin = require('../middlewares/adminauth');
+const adminAuth = require('../middlewares/adminauth');
+const { authenticateToken, authorizeRole } = require('../middlewares/authMiddleware');
 
-// Admin adds a user (invitation)
-router.post('/add-user', authController.addUserByAdmin);
+// Admin login route
+router.post('/auth/admin-login', adminAuth.adminLogin);
 
-// User sets password after invitation
-router.post('/set-password/:token', authController.setPassword);
+router.post('/auth/add-admin', authenticateToken, authorizeRole('admin'), adminAuth.addAdmin);
 
-// Login route
-router.post('/login', authController.login);
+// Add user by admin
+router.post('/auth/add-user', authenticateToken, authorizeRole('admin'), authController.addUserByAdmin);
 
-// Request password reset
-router.post('/password-reset', authController.requestPasswordReset);
+// Set password after invitation
+router.post('/auth/set-password/:token', authController.setPassword);
+/**
+ * http://localhost:3000/login/auth/add-user
+ */
+// User login route
+router.post('/auth/login', authController.login);
 
-// Reset password
-router.post('/reset-password/:token', authController.resetPassword);
+// Password reset
+router.post('/auth/request-password-reset', authController.requestPasswordReset);
+router.post('/auth/reset-password/:token', authController.resetPassword);
 
 module.exports = router;
