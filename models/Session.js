@@ -24,7 +24,7 @@ const sessionSchema = new mongoose.Schema({
       }
     },
     service_end_time: { type: Date },
-    price: { type: Number, required: true }
+    price: { type: Number}
   }],
   client_name: { type: String, required: true },
   total_price: { type: Number}

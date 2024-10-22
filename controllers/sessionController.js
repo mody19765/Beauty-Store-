@@ -254,7 +254,7 @@ exports.searchSessions = async (req, res) => {
 exports.updateServiceInSession = async (req, res) => { 
   try {
     const { sessionId, serviceId } = req.params;
-    const { service_start_time, service_price, designer_id } = req.body;
+    const { service_start_time,designer_id } = req.body;
 
     // Validate required fields
     if (!service_start_time || !designer_id) {
@@ -306,7 +306,6 @@ exports.updateServiceInSession = async (req, res) => {
     Object.assign(service, {
       service_start_time: startTime.toISOString(),
       service_end_time: endTime.toISOString(),
-      service_price,
       designer_id
     });
 
