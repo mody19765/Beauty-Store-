@@ -7,7 +7,7 @@ const sessionController = require('../controllers/sessionController');
 router.use(authenticateToken);
 
 // Public route to get sessions
-router.get('/', sessionController.getAllSessions);
+router.get('/',authenticateToken,sessionController.getAllSessions);
 router.get('/:id', sessionController.getSessionById);
 
 // Only admins can create, update, or delete sessions

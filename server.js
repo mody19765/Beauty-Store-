@@ -9,7 +9,7 @@ dotnev.config()
 
 // Initialize app
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;+
 
 // Connect to database
 connectDB();
@@ -50,8 +50,6 @@ app.use('/branches', authMiddleware.authenticateToken, require('./routes/branchR
 app.use('/customers', authMiddleware.authenticateToken, require('./routes/customerRoutes'));
 
 // Default route
-
-
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

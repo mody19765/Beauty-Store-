@@ -1,16 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
-const authAdmin = require('../middlewares/adminauth');
-const adminAuth = require('../middlewares/adminauth');
 const { authenticateToken, authorizeRole } = require('../middlewares/authMiddleware');
 
-// Admin login route
-router.post('/auth/admin-login', adminAuth.adminLogin);
-
-router.post('/auth/add-admin', authenticateToken, authorizeRole('admin'), adminAuth.addAdmin);
-
-// Add user by admin
+// Add user %Admin
 router.post('/auth/add-user', authenticateToken, authorizeRole('admin'), authController.addUserByAdmin);
 
 // Set password after invitation

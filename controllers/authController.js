@@ -1,5 +1,4 @@
 const User = require('../models/userModel');
-const Admin = require('../models/Admin');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { sendPasswordResetEmail, sendInvitationEmail } = require('../utils/emailService');
@@ -78,19 +77,18 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: 'User does not exist or password not set.' });
     }
 
-    // Check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials.' });
     }
 
-    // Generate token (expires in 1 day)
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const token = jwt.sign({ id: user._id, role: user.role }, "mo", { expiresIn: '1d' });
     res.status(200).json({ token, user });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
 
 // Request Password Reset
 exports.requestPasswordReset = async (req, res) => {
@@ -152,7 +150,7 @@ exports.addAdmin = async (req, res) => {
     const { name, email, password } = req.body;
 
     // Check if admin already exists
-    const existingAdmin = await Admin.findOne({ email });
+    const existingAdmin = await User.findOne({ email });
     if (existingAdmin) {
       return res.status(400).json({ message: 'Admin already exists.' });
     }
@@ -161,7 +159,7 @@ exports.addAdmin = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 12); // Increased salt rounds
 
     // Create new admin
-    const newAdmin = new Admin({
+    const newAdmin = new User({
       name,
       email,
       password: hashedPassword,
