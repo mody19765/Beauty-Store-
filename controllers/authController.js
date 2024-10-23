@@ -30,7 +30,7 @@ exports.addUserByAdmin = async (req, res) => {
     await logHistory({
       userId: req.user.id,
       action: 'Add User by Admin',
-      details: `Admin : ${userId}added user: ${name} with role: ${role}`,
+      details: `Admin : ${req.user.id}added user: ${name} with role: ${role}`,
     });
     // Return success message
     res.status(201).json({ message: 'User added and invitation sent', token });
