@@ -2,6 +2,7 @@
 const { log } = require('winston');
 const Session = require('../models/Session');
 const Customer = require('../models/Customer');
+const Service = require('../models/Service');
 
 
 exports.createSession = async (req, res) => {
@@ -254,20 +255,15 @@ exports.searchSessions = async (req, res) => {
 exports.updateServiceInSession = async (req, res) => { 
   try {
     const { sessionId, serviceId } = req.params;
-    const { service_start_time,designer_id } = req.body;
+    const { new_service_id, service_start_time, designer_id } = req.body;
 
     // Validate required fields
-    if (!service_start_time || !designer_id) {
-      return res.status(400).json({ message: 'Missing required fields: service_start_time and designer_id' });
+    if (!new_service_id || !service_start_time || !designer_id) {
+      return res.status(400).json({ message: 'Missing required fields: new_service_id, service_start_time, and designer_id' });
     }
 
-    // Parse and validate the start time
+    // Convert start time to Date and ensure it's not in the past
     const startTime = new Date(service_start_time);
-    if (isNaN(startTime.getTime())) {
-      return res.status(400).json({ message: 'Invalid service start time format' });
-    }
-    
-    // Ensure the start time is not in the past
     if (startTime < new Date()) {
       return res.status(400).json({ message: 'Service start time cannot be in the past' });
     }
@@ -280,10 +276,16 @@ exports.updateServiceInSession = async (req, res) => {
       return res.status(404).json({ message: 'Session not found' });
     }
 
-    // Find the service to update
+    // Validate the new service ID
+    const newService = await Service.findById(new_service_id);
+    if (!newService) {
+      return res.status(404).json({ message: 'New service not found' });
+    }
+
+    // Find the service to update in the session
     const service = session.services.id(serviceId);
     if (!service) {
-      return res.status(404).json({ message: 'Service not found' });
+      return res.status(404).json({ message: 'Service not found in session' });
     }
 
     // Check for overlapping designer bookings in other sessions
@@ -302,12 +304,12 @@ exports.updateServiceInSession = async (req, res) => {
       });
     }
 
-    // Update the service details
-    Object.assign(service, {
-      service_start_time: startTime.toISOString(),
-      service_end_time: endTime.toISOString(),
-      designer_id
-    });
+    // Update the service details in the session with the new service
+    service._id = newService._id;
+    service.service_name = newService.service_name;
+    service.service_start_time = startTime.toISOString();
+    service.service_end_time = endTime.toISOString();
+    service.designer_id = designer_id;
 
     await session.save();
 
@@ -317,6 +319,8 @@ exports.updateServiceInSession = async (req, res) => {
     res.status(500).json({ message: 'Error updating service', error: error.message });
   }
 };
+
+
 
 
 
