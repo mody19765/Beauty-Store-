@@ -2,6 +2,8 @@ const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { sendPasswordResetEmail, sendInvitationEmail } = require('../utils/emailService');
+const BlacklistedToken = require('../models/blacklistedToken'); // Optional: If implementing blacklist
+const logHistory  = require('../utils/historyLogger');
 
 // Admin adds user
 exports.addUserByAdmin = async (req, res) => {
@@ -25,7 +27,11 @@ exports.addUserByAdmin = async (req, res) => {
 
     // Send the invitation email with the token link
     await sendInvitationEmail(email, token);
-
+    await logHistory({
+      userId: req.user.id,
+      action: 'Add User by Admin',
+      details: `Admin : ${userId}added user: ${name} with role: ${role}`,
+    });
     // Return success message
     res.status(201).json({ message: 'User added and invitation sent', token });
   } catch (error) {
@@ -83,9 +89,39 @@ exports.login = async (req, res) => {
     }
 
     const token = jwt.sign({ id: user._id, role: user.role }, "mo", { expiresIn: '1d' });
-    res.status(200).json({ token, user });
+    await logHistory({
+      userId: user._id,
+      action: 'Login',
+      details: `User ${user.name} logged in.`,
+    });
+    
+    res.status(200).json({ message:"Sucess",token, user });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+// controllers/authController.js
+
+exports.logout = async (req, res) => {
+  try {
+    const token = req.headers['authorization']?.split(' ')[1];
+    
+    if (token) {
+      // Optional: Add token to a blacklist if you plan to check this list on login
+      await BlacklistedToken.create({ token });
+
+      // Alternatively, you can expire the token by setting a short lifespan when issuing the token
+    }
+
+    // Send a response to the client indicating successful logout
+    await logHistory({
+      userId: req.user.id,
+      action: 'Logout',
+      details: `User ${req.user.id} logged out.`,
+    });
+    res.status(200).json({ message: 'Logout successful. Please remove the token from your client storage.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error during logout', error: error.message });
   }
 };
 
@@ -105,7 +141,11 @@ exports.requestPasswordReset = async (req, res) => {
 
     // Send password reset email
     await sendPasswordResetEmail(email, token);
-
+    await logHistory({
+      userId: user._id,
+      action: 'Password Reset Requested',
+      details: `User ${user.email} requested password reset.`,
+    });
     res.status(200).json({ message: 'Password reset link sent to your email' });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });

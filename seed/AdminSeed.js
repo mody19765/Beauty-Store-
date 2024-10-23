@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Admin = require('../models/Admin');
+const Admin = require('../models/userModel');
 const bcrypt = require('bcrypt');
 
 mongoose.connect('mongodb+srv://Mo:Mo@cluster0.w0qfnzb.mongodb.net/Beauty_Store', { useNewUrlParser: true, useUnifiedTopology: true })
@@ -9,6 +9,7 @@ mongoose.connect('mongodb+srv://Mo:Mo@cluster0.w0qfnzb.mongodb.net/Beauty_Store'
       name: 'Shady',
       email: 'Shady@example.com',
       password: hashedPassword,
+      phone:"011135",
       role: 'admin'
     });
     await admin.save();

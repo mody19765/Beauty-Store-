@@ -1,14 +1,15 @@
 
-const { log } = require('winston');
 const Session = require('../models/Session');
 const Customer = require('../models/Customer');
 const Service = require('../models/Service');
+const logHistory = require('../utils/historyLogger'); // Update the path if needed
+const History = require('../models/history');
 
 
 exports.createSession = async (req, res) => {
   try {
-    const {Branch_id, services, client_name, phone_number } = req.body;
-    
+    const { Branch_id, services, client_name, phone_number } = req.body;
+
     let client = await Customer.findOne({ phone_number });
     if (!client) {
       // Log that a client needs to be created if not found
@@ -54,24 +55,27 @@ exports.createSession = async (req, res) => {
 
     const session = new Session({ Branch_id, services, phone_number, client_name });
     await session.save();
+    await logHistory({
+      userId: req.user._id,
+      action: `Created session ${session._id}`,
+      timestamp: new Date(),
+      details: `Created session with Branch ID: ${Branch_id}, services: ${JSON.stringify(services)}, client_name: ${client_name}, phone_number: ${phone_number}`
+    });
     res.status(201).json(session);
 
   } catch (error) {
     res.status(500).json({ message: 'An error occurred while creating the session.', error: error.message });
   }
 };
-
-
-
 exports.getAllSessions = async (req, res) => {
   try {
     const sessions = await Session.find()
-      .populate('branch_id') 
+      .populate('branch_id')
       .populate({
         path: 'services',
         populate: [
-          { path: 'service_id' },  
-          { path: 'designer_id' }  
+          { path: 'service_id' },
+          { path: 'designer_id' }
         ]
       });
 
@@ -91,7 +95,6 @@ exports.getAllSessions = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 exports.getSessionById = async (req, res) => {
   try {
     const session = await Session.findById(req.params.id)
@@ -200,26 +203,34 @@ exports.updateSession = async (req, res) => {
     }
 
     await existingSession.save();
-
+    await logHistory({
+      userId: req.user._id,
+      action: `Updated session ${sessionId}`,
+      timestamp: new Date(),
+      details: `Updated services: ${JSON.stringify(updatedServices)} and client_name: ${client_name}`
+    });
     res.status(200).json(existingSession);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
-
-
-
 exports.deleteSession = async (req, res) => {
   try {
     const session = await Session.findByIdAndDelete(req.params.id);
-    
+
     if (!session) return res.status(404).json({ message: 'Session not found' });
+
+    await logHistory({
+      userId: req.user._id,
+      action: `Deleted session ${sessionId}`,
+      timestamp: new Date(),
+      details: `Deleted session with ID: ${sessionId}`
+    });
     res.status(200).json({ message: 'Session deleted' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-
 exports.searchSessions = async (req, res) => {
   try {
     const { query } = req.query;
@@ -248,11 +259,8 @@ exports.searchSessions = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-
-
 // Update a specific service within a session
-exports.updateServiceInSession = async (req, res) => { 
+exports.updateServiceInSession = async (req, res) => {
   try {
     const { sessionId, serviceId } = req.params;
     const { new_service_id, service_start_time, designer_id } = req.body;
@@ -303,6 +311,7 @@ exports.updateServiceInSession = async (req, res) => {
         message: 'Designer is already booked during the specified time slot'
       });
     }
+    const user = req.user; // Assume authenticated user details are stored in req.user
 
     // Update the service details in the session with the new service
     service._id = newService._id;
@@ -312,69 +321,82 @@ exports.updateServiceInSession = async (req, res) => {
     service.designer_id = designer_id;
 
     await session.save();
-
+  // Log the update in history
+  await logHistory({
+    userId: req.user._id,
+    action: `Updated service ${serviceId} in session ${sessionId}`,
+    timestamp: new Date(),
+    details: `Updated to new service: ${newService._id}, start_time: ${service.service_start_time}, end_time: ${service.service_end_time}, designer_id: ${designer_id}`
+  });
     res.status(200).json({ message: 'Service updated successfully', session });
-  } 
+  }
   catch (error) {
     res.status(500).json({ message: 'Error updating service', error: error.message });
   }
 };
-
-
-
-
-
-
 // Delete Service from Session
 exports.deleteServiceFromSession = async (req, res) => {
   try {
     const { sessionId, serviceId } = req.params;
-    
-    // Retrieve the session by ID and check for its existence
+
     const session = await Session.findById(sessionId);
     if (!session) return res.status(404).json({ message: 'Session not found' });
 
-    // Use .id() to find and remove the service by its ID
     const service = session.services.id(serviceId);
     if (!service) return res.status(404).json({ message: 'Service not found' });
 
-    // Remove the service and save the session
     service.remove();
     await session.save();
-    
+
+    if (req.user && req.user._id) { // Ensure req.user is available
+      await logHistory({
+        userId: req.user._id,
+        action: `Deleted service ${serviceId} from session ${sessionId}`,
+        timestamp: new Date(),
+        details: `Service ${serviceId} removed from Session ID: ${sessionId}`
+      });
+    }
+
     res.status(200).json({ message: 'Service deleted successfully', session });
   } catch (error) {
+    console.error("Error logging history:", error);
     res.status(500).json({ message: error.message });
   }
 };
 
 
 
-    
-    /**
-     *     exports.deleteServiceFromSession = async (req, res) => {
-      try {
-        const { sessionId, serviceId } = req.params;
-        const session = await Session.findById(sessionId);
-        if (!session) return res.status(404).json({ message: 'Session not found' });
 
-           session.services.length
-        for (let index = 0; index < session.services.length; index++) {
-             console.log(index);
-             console.log(serviceId);
-             console.log(session.services[index]._id);
 
-          if(session.services[index].service_id._id==serviceId)
-          {
-            console.log(session.services[index]._id);
-            session.services[index].remove();
-            await session.save();
-            return res.status(200).json({ message: 'Service deleted successfully', session })
-          }
-        }
-        return res.status(404).json({ message: 'Service not found' });
-      } catch (error) {
-        res.status(500).json({ message: error.message });
+/**
+ * 
+ * The request to http://localhost:3000/history/logs returned a 200 status code, indicating a successful response. The Content-Type of the response is "text/xml". However, the response body is null, which means that the server did not return any data in the response. This could indicate a problem with the server or the request itself, as it did not provide the expected data in the response body.
+
+
+
+ *     exports.deleteServiceFromSession = async (req, res) => {
+  try {
+    const { sessionId, serviceId } = req.params;
+    const session = await Session.findById(sessionId);
+    if (!session) return res.status(404).json({ message: 'Session not found' });
+
+       session.services.length
+    for (let index = 0; index < session.services.length; index++) {
+         console.log(index);
+         console.log(serviceId);
+         console.log(session.services[index]._id);
+
+      if(session.services[index].service_id._id==serviceId)
+      {
+        console.log(session.services[index]._id);
+        session.services[index].remove();
+        await session.save();
+        return res.status(200).json({ message: 'Service deleted successfully', session })
       }
-    };  
-     */
+    }
+    return res.status(404).json({ message: 'Service not found' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};  
+ */
