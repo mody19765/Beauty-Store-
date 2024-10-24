@@ -43,7 +43,7 @@ app.options('*', cors(corsOptions));
 
 
 // Routes
-app.use('/login', require('./routes/authRoutes')); // Auth routes
+app.use('/', require('./routes/authRoutes')); // Auth routes
 app.use('/designers', authMiddleware.authenticateToken, require('./routes/designerRoutes'));
 app.use('/employees', authMiddleware.authenticateToken, require('./routes/employeeRoutes'));
 app.use('/sessions', authMiddleware.authenticateToken, require('./routes/sessionRoutes'));
