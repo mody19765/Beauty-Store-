@@ -13,7 +13,7 @@ router.post('/set-password/:token', authController.setPassword);
  * http://localhost:3000/login/auth/add-user
  */
 // User login route
-router.post('/auth/login', authController.login);
+router.post('/login', authController.login);
 router.post('/logout', authenticateToken, logout);
 
 // Password reset
