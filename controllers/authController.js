@@ -3,9 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { sendPasswordResetEmail, sendInvitationEmail } = require('../utils/emailService');
 const BlacklistedToken = require('../models/blacklistedToken'); // Optional: If implementing blacklist
-const logHistory  = require('../utils/historyLogger');
-
-// Admin adds user
+const logHistory = require('../utils/historyLogger');
 exports.addUserByAdmin = async (req, res) => {
   try {
     const { name, email, phone, role } = req.body;
@@ -23,15 +21,17 @@ exports.addUserByAdmin = async (req, res) => {
     await user.save();
 
     // Generate token for email invitation (expires in 1 hour)
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id }, "mo", { expiresIn: '1h' });
 
     // Send the invitation email with the token link
     await sendInvitationEmail(email, token);
     await logHistory({
       userId: req.user.id,
       action: 'Add User by Admin',
-      details: `Admin : ${req.user.id}added user: ${name} with role: ${role}`,
-    });
+      details: `Admin : ${req.user.id} added user: ${name} with role: ${role}`,
+     });
+console.log("user : ",user);
+
     // Return success message
     res.status(201).json({ message: 'User added and invitation sent', token });
   } catch (error) {
@@ -40,27 +40,32 @@ exports.addUserByAdmin = async (req, res) => {
   }
 };
 
+
 // Set password after clicking invitation link
 exports.setPassword = async (req, res) => {
   try {
     const { token } = req.params;
     const { password } = req.body;
 
-    // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // Find user
+    const decoded = jwt.verify(token, "mo");
     const user = await User.findById(decoded.id);
+
     if (!user) {
       return res.status(400).json({ message: 'Invalid or expired token' });
     }
 
-    // Hash the new password
-    const hashedPassword = await bcrypt.hash(password, 12); // Increased salt rounds for security
-    user.password = hashedPassword;
-    user.isPasswordSet = true;
+    if (!user.isPasswordSet) {
+      // Log to confirm the user and hashed password
+      console.log("Setting password for:", user.email);
+      const hashedPassword = await bcrypt.hash(password, 10);
+      console.log("Generated hash:", hashedPassword);
 
-    await user.save();
+      user.password = hashedPassword;
+      user.isPasswordSet = true;
+      await user.save();
+
+      console.log("Password successfully saved:", user.password);
+    }
     res.status(200).json({ message: 'Password set successfully' });
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
@@ -82,9 +87,14 @@ exports.login = async (req, res) => {
     if (!user || !user.isPasswordSet) {
       return res.status(400).json({ message: 'User does not exist or password not set.' });
     }
+    // Log the entered password and stored hash
+    console.log("Entered password:", password);
+    console.log("Stored hashed password:", user.password);
 
+    // Compare entered password with the stored hashed password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      console.error('Password mismatch');
       return res.status(400).json({ message: 'Invalid credentials.' });
     }
 
@@ -94,18 +104,22 @@ exports.login = async (req, res) => {
       action: 'Login',
       details: `User ${user.name} logged in.`,
     });
-    
-    res.status(200).json({ message:"Sucess",token, user });
+
+    res.status(200).json({ message: "Success", token, user });
   } catch (error) {
+    console.error('Error in login:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
+
+
 // controllers/authController.js
 
 exports.logout = async (req, res) => {
   try {
     const token = req.headers['authorization']?.split(' ')[1];
-    
+
     if (token) {
       // Optional: Add token to a blacklist if you plan to check this list on login
       await BlacklistedToken.create({ token });
@@ -137,7 +151,7 @@ exports.requestPasswordReset = async (req, res) => {
     }
 
     // Generate password reset token (expires in 1 hour)
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id }, "mo", { expiresIn: '1h' });
 
     // Send password reset email
     await sendPasswordResetEmail(email, token);
@@ -159,7 +173,7 @@ exports.resetPassword = async (req, res) => {
     const { password } = req.body;
 
     // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, "mo");
 
     // Find user
     const user = await User.findById(decoded.id);
@@ -168,7 +182,7 @@ exports.resetPassword = async (req, res) => {
     }
 
     // Hash the new password
-    const hashedPassword = await bcrypt.hash(password, 12); // Increased salt rounds
+    const hashedPassword = await bcrypt.hash(password, 10); // Increased salt rounds
     user.password = hashedPassword;
 
     await user.save();
@@ -196,7 +210,7 @@ exports.addAdmin = async (req, res) => {
     }
 
     // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 12); // Increased salt rounds
+    const hashedPassword = await bcrypt.hash(password, 10); // Increased salt rounds
 
     // Create new admin
     const newAdmin = new User({
