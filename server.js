@@ -17,8 +17,8 @@ connectDB();
 
 // Middleware
 app.use(bodyParser.json());
-
 const allowedOrigins = ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app', 'https://beauty-store-pi.vercel.app'];
+
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests from allowedOrigins or no origin (like mobile apps or Postman)
@@ -37,16 +37,13 @@ const corsOptions = {
 // Apply CORS Middleware
 app.use(cors(corsOptions));
 
-// Handle Preflight Requests
-app.options('*', cors(corsOptions));
-
-// Middleware to Set Headers Explicitly
+// Middleware to Explicitly Set Headers
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin); // Set the origin dynamically
     res.setHeader('Access-Control-Allow-Credentials', 'true'); // Allow cookies/auth headers
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS'); // Correct method formatting
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Correct method formatting
     res.setHeader(
       'Access-Control-Allow-Headers',
       'Content-Type, Authorization, X-Requested-With, Accept, Origin, X-CSRF-Token, Content-Length, Content-MD5, Date, X-Api-Version'
@@ -55,6 +52,22 @@ app.use((req, res, next) => {
   next();
 });
 
+// Ensure Preflight Requests are Handled Correctly
+app.options('*', (req, res) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization, X-Requested-With, Accept, Origin, X-CSRF-Token, Content-Length, Content-MD5, Date, X-Api-Version'
+    );
+    res.sendStatus(204); // No content for preflight request
+  } else {
+    res.sendStatus(403); // Forbidden if the origin is not allowed
+  }
+});
 
 
 
