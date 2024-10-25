@@ -50,7 +50,7 @@ app.use(function (req, res, next) {
   });
   app.use(cors()) 
 
-  app.options( 'https://beauty-store-pi.vercel.app' , cors())
+  app.options( '*' , cors())
 // Routes
 app.use('/', require('./routes/authRoutes')); // Auth routes
 app.use('/designers', authMiddleware.authenticateToken, require('./routes/designerRoutes'));
