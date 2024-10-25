@@ -39,6 +39,8 @@ app.use(cors(corsOptions));
 
 // Handle preflight requests for all routes
 app.options('*', cors(corsOptions));
+// Handle preflight requests specifically for the login route
+app.options('/login', cors(corsOptions));
 
 // Routes
 app.use('/', require('./routes/authRoutes')); // Auth routes
