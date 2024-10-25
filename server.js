@@ -18,7 +18,7 @@ connectDB();
 app.use(bodyParser.json());
 
 // CORS Setup
-const allowedOrigins = ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app','https://beauty-store-pi.vercel.app'];
+const allowedOrigins = ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app','http://beauty-store-pi.vercel.app'];
 const corsOptions = {
   origin: function (origin, callback) {
     // If the request origin is in the allowedOrigins list, allow it
@@ -28,11 +28,11 @@ const corsOptions = {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE',"OPTIONS"],
+  methods: ['GET', 'POST', 'PUT', 'DELETE','OPTIONS'],
   credentials: true, // Allow cookies/auth headers
-  Headers: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
-app.use(cors())
+
 app.use(cors(corsOptions));
 
 // Preflight request handling for all routes
