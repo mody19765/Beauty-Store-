@@ -49,6 +49,8 @@ app.use(function (req, res, next) {
   res.setHeader("Access-Control-Allow-Methods","PUT, POST, GET, DELETE, PATCH, OPTIONS");  next();
   });
   app.use(cors()) 
+
+  app.options( 'https://beauty-store-pi.vercel.app' , cors())
 // Routes
 app.use('/', require('./routes/authRoutes')); // Auth routes
 app.use('/designers', authMiddleware.authenticateToken, require('./routes/designerRoutes'));
