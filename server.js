@@ -39,11 +39,17 @@ const corsOptions = {
 
 app.use(cors(corsOptions)); // Place this before your routes
 app.options('*', cors(corsOptions)); // This will handle preflight requests
-
+app.use(function (req, res, next) {
+  //Enabling CORS
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, x-client-key, x-client-token, x-client-secret, Authorization");
+    next();
+  });
 
 
 // Routes
-app.use('http://', require('./routes/authRoutes')); // Auth routes
+app.use('/', require('./routes/authRoutes')); // Auth routes
 app.use('/designers', authMiddleware.authenticateToken, require('./routes/designerRoutes'));
 app.use('/employees', authMiddleware.authenticateToken, require('./routes/employeeRoutes'));
 app.use('/sessions', authMiddleware.authenticateToken, require('./routes/sessionRoutes'));
