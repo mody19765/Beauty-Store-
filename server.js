@@ -16,9 +16,20 @@ connectDB();
 
 // Middleware
 app.use(bodyParser.json());
-
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "https://beauty-store-pi.vercel.app"); // Adjust to your allowed origin
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Vary", "Accept-Encoding, Origin");
+  res.setHeader("Content-Encoding", "gzip");
+  res.setHeader("Keep-Alive", "timeout=2, max=100");
+  res.setHeader("Connection", "Keep-Alive");
+  res.setHeader("Content-Type", "text/plain");
+  next();
+});
 // CORS Setup
-const allowedOrigins = ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app','http://beauty-store-pi.vercel.app'];
+const allowedOrigins = ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app','https://beauty-store-pi.vercel.app'];
 const corsOptions = {
   origin: function (origin, callback) {
     // If the request origin is in the allowedOrigins list, allow it
