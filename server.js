@@ -48,7 +48,7 @@ app.use('/sessions', authMiddleware.authenticateToken, require('./routes/session
 app.use('/services', authMiddleware.authenticateToken, require('./routes/serviceRoutes'));
 app.use('/branches', authMiddleware.authenticateToken, require('./routes/branchRoutes'));
 app.use('/customers', authMiddleware.authenticateToken, require('./routes/customerRoutes'));
-
+app.use('/history', authMiddleware.authenticateToken, require('./routes/historyRoutes'));
 // Default route
 
 
