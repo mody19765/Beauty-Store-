@@ -6,6 +6,6 @@ const { authenticateToken, authorizeRole } = require('../middlewares/authMiddlew
 router.use(authenticateToken);
 
 // Add `authenticateToken` first, then `authorizeRole` to ensure proper access
-router.get('/logs',authorizeRole("admin"), getHistoryLogs);
+router.get('/',authorizeRole("admin"), getHistoryLogs);
 
 module.exports = router;
