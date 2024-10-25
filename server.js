@@ -4,9 +4,8 @@ const bodyParser = require('body-parser');
 const connectDB = require('./config/dbConfig');
 const cors = require('cors');
 const authMiddleware = require('./middlewares/authMiddleware');
-const dotenv = require('dotenv');
-
-dotenv.config();
+const dotnev = require('dotenv')
+dotnev.config()
 
 // Initialize app
 const app = express();
@@ -18,29 +17,28 @@ connectDB();
 // Middleware
 app.use(bodyParser.json());
 
+// CORS Setup
+const allowedOrigins = ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app'];
 const corsOptions = {
-  origin: ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app'], // Update to match your front-end
-  credentials: true, // This must be true to allow credentials
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: [
-    'Content-Type',
-    'Authorization',
-    'X-Requested-With',
-    'Accept',
-    'Origin',
-    'X-Client-Key',
-    'X-Client-Token',
-    'X-Client-Secret'
-  ]
+  origin: function (origin, callback) {
+    // If the request origin is in the allowedOrigins list, allow it
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true, // Allow cookies/auth headers
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
-// Enable CORS with the specified options
 app.use(cors(corsOptions));
 
-// Handle preflight requests for all routes
+// Preflight request handling for all routes
 app.options('*', cors(corsOptions));
-// Handle preflight requests specifically for the login route
-app.options('/login', cors(corsOptions));
+
+
 
 // Routes
 app.use('/', require('./routes/authRoutes')); // Auth routes
@@ -49,9 +47,22 @@ app.use('/employees', authMiddleware.authenticateToken, require('./routes/employ
 app.use('/sessions', authMiddleware.authenticateToken, require('./routes/sessionRoutes'));
 app.use('/services', authMiddleware.authenticateToken, require('./routes/serviceRoutes'));
 app.use('/branches', authMiddleware.authenticateToken, require('./routes/branchRoutes'));
-app.use('/history', authMiddleware.authenticateToken, require('./routes/historyRoutes'));
+app.use('/customers', authMiddleware.authenticateToken, require('./routes/customerRoutes'));
+
+// Default route
+
 
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+});
+
+
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
+const password = '123'; // Replace with your password
+
+bcrypt.hash(password, saltRounds, function (err, hash) {
+  if (err) throw err;
+  console.log('Hashed password:', hash);
 });
