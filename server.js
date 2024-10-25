@@ -4,13 +4,13 @@ const bodyParser = require('body-parser');
 const connectDB = require('./config/dbConfig');
 const cors = require('cors');
 const authMiddleware = require('./middlewares/authMiddleware');
-const dotnev = require('dotenv')
+const dotenv = require('dotenv');
 
-dotnev.config()
+dotenv.config();
 
 // Initialize app
 const app = express();
-const PORT = process.env.PORT || 3000;+
+const PORT = process.env.PORT || 3000;
 
 // Connect to database
 connectDB();
@@ -18,10 +18,9 @@ connectDB();
 // Middleware
 app.use(bodyParser.json());
 
-app.use(cors());
 const corsOptions = {
-  origin: 'https://beauty-store-pi.vercel.app',
-  credentials: true,
+  origin: 'https://beauty-store-pi.vercel.app', // Update to match your front-end
+  credentials: true, // This must be true to allow credentials
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: [
     'Content-Type',
@@ -35,11 +34,11 @@ const corsOptions = {
   ]
 };
 
+// Enable CORS with the specified options
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // This will handle preflight requests
 
-
-
+// Handle preflight requests for all routes
+app.options('*', cors(corsOptions));
 
 // Routes
 app.use('/', require('./routes/authRoutes')); // Auth routes
@@ -50,8 +49,6 @@ app.use('/services', authMiddleware.authenticateToken, require('./routes/service
 app.use('/branches', authMiddleware.authenticateToken, require('./routes/branchRoutes'));
 app.use('/history', authMiddleware.authenticateToken, require('./routes/historyRoutes'));
 
-
-// Default route
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
