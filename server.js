@@ -19,31 +19,24 @@ connectDB();
 app.use(bodyParser.json());
 
 // CORS Setup
-const allowedOrigins = ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app', 'https://beauty-store-pi.vercel.app'];
+
+// CORS Setup
+const allowedOrigins = ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app'];
 const corsOptions = {
   origin: function (origin, callback) {
+    // If the request origin is in the allowedOrigins list, allow it
     if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
-  optionsSuccessStatus: 204
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true, // Allow cookies/auth headers
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", req.headers.origin);
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept, Origin");
-  res.header("Access-Control-Allow-Credentials", "true");
-  next();
-});
-
 
 
 
