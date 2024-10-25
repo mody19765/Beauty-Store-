@@ -17,42 +17,43 @@ connectDB();
 
 // Middleware
 app.use(bodyParser.json());
-const allowedOrigins = ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app', 'https://beauty-store-pi.vercel.app'];
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://beauty-store-alpha.vercel.app',
+  'https://beauty-store-pi.vercel.app'
+];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests from allowedOrigins or no origin (like mobile apps or Postman)
     if (allowedOrigins.includes(origin) || !origin) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Include all necessary methods
-  credentials: true, // Allow cookies/auth headers
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'], // Ensure all required headers are included
-  optionsSuccessStatus: 204 // Successful status for preflight requests
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  optionsSuccessStatus: 204
 };
 
-// Apply CORS Middleware
-app.use(cors(corsOptions));
-
-// Middleware to Explicitly Set Headers
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin); // Set the origin dynamically
-    res.setHeader('Access-Control-Allow-Credentials', 'true'); // Allow cookies/auth headers
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Correct method formatting
+    res.setHeader('Access-Control-Allow-Origin', origin); // Dynamically allow origin
+    res.setHeader('Access-Control-Allow-Credentials', 'true'); // Allow credentials
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader(
       'Access-Control-Allow-Headers',
-      'Content-Type, Authorization, X-Requested-With, Accept, Origin, X-CSRF-Token, Content-Length, Content-MD5, Date, X-Api-Version'
+      'Content-Type, Authorization, X-Requested-With, Accept, Origin'
     );
   }
   next();
 });
 
-// Ensure Preflight Requests are Handled Correctly
+app.use(cors(corsOptions));
+
+// Explicitly handle preflight requests
 app.options('*', (req, res) => {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
@@ -61,9 +62,9 @@ app.options('*', (req, res) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader(
       'Access-Control-Allow-Headers',
-      'Content-Type, Authorization, X-Requested-With, Accept, Origin, X-CSRF-Token, Content-Length, Content-MD5, Date, X-Api-Version'
+      'Content-Type, Authorization, X-Requested-With, Accept, Origin'
     );
-    res.sendStatus(204); // No content for preflight request
+    res.sendStatus(204); // Success for preflight request
   } else {
     res.sendStatus(403); // Forbidden if the origin is not allowed
   }
