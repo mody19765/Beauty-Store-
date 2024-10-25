@@ -4,13 +4,13 @@ const bodyParser = require('body-parser');
 const connectDB = require('./config/dbConfig');
 const cors = require('cors');
 const authMiddleware = require('./middlewares/authMiddleware');
-const dotenv = require('dotenv');
+const dotnev = require('dotenv')
 
-dotenv.config();
+dotnev.config()
 
 // Initialize app
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;+
 
 // Connect to database
 connectDB();
@@ -18,22 +18,11 @@ connectDB();
 // Middleware
 app.use(bodyParser.json());
 
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://beauty-store-alpha.vercel.app',
-  'https://beauty-store-pi.vercel.app'
-];
-
+app.use(cors());
 const corsOptions = {
-  origin: function (origin, callback) {
-    if (allowedOrigins.includes(origin) || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  origin: 'https://beauty-store-pi.vercel.app',
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: [
     'Content-Type',
     'Authorization',
@@ -46,9 +35,11 @@ const corsOptions = {
   ]
 };
 
-// Enable CORS
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Handle preflight requests
+app.options('*', cors(corsOptions)); // This will handle preflight requests
+
+
+
 
 // Routes
 app.use('/', require('./routes/authRoutes')); // Auth routes
@@ -59,6 +50,8 @@ app.use('/services', authMiddleware.authenticateToken, require('./routes/service
 app.use('/branches', authMiddleware.authenticateToken, require('./routes/branchRoutes'));
 app.use('/history', authMiddleware.authenticateToken, require('./routes/historyRoutes'));
 
+
+// Default route
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
