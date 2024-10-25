@@ -45,7 +45,7 @@ const corsOptions = {
   credentials: true, // Allow cookies/auth headers
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
-
+app.use(cors())
 app.use(cors(corsOptions));
 
 // Preflight request handling for all routes
