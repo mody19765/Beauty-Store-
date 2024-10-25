@@ -16,6 +16,7 @@ connectDB();
 
 // Middleware
 app.use(bodyParser.json());
+app.use(cors());
 
 // CORS middleware
 const allowCors = (fn) => async (req, res) => {
