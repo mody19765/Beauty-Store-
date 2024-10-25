@@ -17,11 +17,6 @@ connectDB();
 
 // Middleware
 app.use(bodyParser.json());
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://beauty-store-alpha.vercel.app',
-  'https://beauty-store-pi.vercel.app'
-];
 
 const corsOptions = {
   origin: function (origin, callback) {
@@ -34,14 +29,10 @@ const corsOptions = {
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
-  optionsSuccessStatus: 204
 };
 
-// Ensure this is the first middleware in your app
-app.use(cors(corsOptions));
-
-// Explicitly handle preflight requests
-app.options('*', cors(corsOptions));
+app.use(cors(corsOptions)); // This should be before any route definitions
+app.options('*', cors(corsOptions)); // Handle preflight requests
 
 
 
