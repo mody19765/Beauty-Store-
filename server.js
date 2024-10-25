@@ -26,6 +26,8 @@ app.use((req, res, next) => {
   res.setHeader("Keep-Alive", "timeout=2, max=100");
   res.setHeader("Connection", "Keep-Alive");
   res.setHeader("Content-Type", "text/plain");
+  res.setHeader("Access-Control-Allow-Methods ", "POST"); // Adjust to your allowed origin
+
   next();
 });
 // CORS Setup
