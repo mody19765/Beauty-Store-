@@ -37,39 +37,11 @@ const corsOptions = {
   optionsSuccessStatus: 204
 };
 
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin); // Dynamically allow origin
-    res.setHeader('Access-Control-Allow-Credentials', 'true'); // Allow credentials
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader(
-      'Access-Control-Allow-Headers',
-      'Content-Type, Authorization, X-Requested-With, Accept, Origin'
-    );
-  }
-  next();
-});
-
+// Ensure this is the first middleware in your app
 app.use(cors(corsOptions));
 
 // Explicitly handle preflight requests
-app.options('*', (req, res) => {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader(
-      'Access-Control-Allow-Headers',
-      'Content-Type, Authorization, X-Requested-With, Accept, Origin'
-    );
-    res.sendStatus(204); // Success for preflight request
-  } else {
-    res.sendStatus(403); // Forbidden if the origin is not allowed
-  }
-});
-
+app.options('*', cors(corsOptions));
 
 
 
