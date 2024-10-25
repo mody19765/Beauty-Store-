@@ -16,34 +16,27 @@ connectDB();
 
 // Middleware
 app.use(bodyParser.json());
-// CORS Configuration
-const corsOptions = {
-  origin: 'https://beauty-store-pi.vercel.app', // Match your frontend domain
-  credentials: true, // Allow credentials
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: [
-    'Content-Type',
-    'Authorization',
-    'X-Requested-With',
-    'Accept',
-    'Origin',
-    'X-Client-Key',
-    'X-Client-Token',
-    'X-Client-Secret'
-  ]
-};
 
-// Enable CORS
+// CORS Setup
+const allowedOrigins = ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app','https://beauty-store-pi.vercel.app'];
+const corsOptions = {
+  origin: function (origin, callback) {
+    // If the request origin is in the allowedOrigins list, allow it
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true, // Allow cookies/auth headers
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+app.use(cors())
 app.use(cors(corsOptions));
 
-// Explicitly handle preflight requests
-app.options('*', (req, res) => {
-  res.header("Access-Control-Allow-Origin", "https://beauty-store-pi.vercel.app");
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept, Origin, X-Client-Key, X-Client-Token, X-Client-Secret");
-  return res.sendStatus(200); // Ensure HTTP 200 OK status for preflight
-});
+// Preflight request handling for all routes
+app.options('*', cors(corsOptions));
 
 
 
