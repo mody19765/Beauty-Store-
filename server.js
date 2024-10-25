@@ -23,25 +23,25 @@ app.use(bodyParser.json());
 const allowedOrigins = ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app'];
 const corsOptions = {
   origin: function (origin, callback) {
-    // If the request origin is in the allowedOrigins list, allow it
+    // Allow requests with no `origin` (like mobile apps or Postman) or from `allowedOrigins`
     if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true, // Allow cookies/auth headers
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Ensure OPTIONS is included for preflight
+  credentials: true, // Enable credentials like cookies
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'], // Extend allowed headers
+  preflightContinue: true, // Optionally allow preflight requests to pass through to middleware
+  optionsSuccessStatus: 200 // Provide a successful status for OPTIONS preflight
 };
 
 app.use(cors(corsOptions));
 
-// Preflight request handling for all routes
+// Explicitly handle preflight requests
 app.options('*', cors(corsOptions));
 
-// Preflight request handling for all routes
-app.options('*', cors(corsOptions));
 
 
 
@@ -59,14 +59,4 @@ app.use('/history', authMiddleware.authenticateToken, require('./routes/historyR
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-});
-
-
-const bcrypt = require('bcrypt');
-const saltRounds = 10;
-const password = '123'; // Replace with your password
-
-bcrypt.hash(password, saltRounds, function (err, hash) {
-  if (err) throw err;
-  console.log('Hashed password:', hash);
 });
