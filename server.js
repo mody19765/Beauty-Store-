@@ -19,7 +19,7 @@ connectDB();
 app.use(bodyParser.json());
 
 const corsOptions = {
-  origin: 'https://beauty-store-pi.vercel.app', // Update to match your front-end
+  origin: ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app'], // Update to match your front-end
   credentials: true, // This must be true to allow credentials
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: [
