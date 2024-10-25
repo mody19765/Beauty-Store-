@@ -17,14 +17,28 @@ connectDB();
 
 // Middleware
 app.use(bodyParser.json());
-   // Cors
-   const corsOptions = {
-    origin: '*',
-    credentials: true,
-    optionSuccessStatus: 200
-  }
-  app.use(cors(corsOptions))
-  
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://beauty-store-alpha.vercel.app',
+  'https://beauty-store-pi.vercel.app'
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
 
 
 // Routes
