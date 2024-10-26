@@ -36,14 +36,15 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Explicitly handle preflight requests
-app.options('*', (req, res) => {
+app.options('*', (req, response) => {
   console.log(req.headers);
-  
-  res.header("Access-Control-Allow-Origin", "https://beauty-store-pi.vercel.app");
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type,Authorization");
-  res.sendStatus(200); // Ensure HTTP 200 OK status for preflight
+
+    response.setHeader("Access-Control-Allow-Origin", "*");
+    response.setHeader("Access-Control-Allow-Credentials", "true");
+    response.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+    response.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
+
+    response.sendStatus(200); // Ensure HTTP 200 OK status for preflight
 });
 
 
