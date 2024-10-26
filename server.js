@@ -32,7 +32,7 @@ app.options('*', (req, res) => {
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   res.sendStatus(204);
 });
-
+app.use(cors())
 app.use(bodyParser.json());
 
 // Routes
