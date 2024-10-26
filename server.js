@@ -37,6 +37,7 @@ const corsOptions = {
         "Access-Control-Allow-Credentials":true,
         "Access-Control-Allow-Credentials":"*",
         "Access-Control-Allow-Credentials":"true",
+        "Access-Control-Allow-Methods":  ['GET', 'POST', 'PUT', 'DELETE'],
         "Access-Control-Allow-Headers": "'Access-Control-Allow-Headers: Origin, Content-Type, X-Auth-Token'"
   } 
 };
