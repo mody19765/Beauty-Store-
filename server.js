@@ -36,7 +36,7 @@ app.options('*', (req, res) => {
 app.use(bodyParser.json());
 
 // Routes
-app.use('/', require('./routes/authRoutes')); // Auth routes
+app.use('/login', require('./routes/authRoutes')); // Auth routes
 app.use('/designers', authMiddleware.authenticateToken, require('./routes/designerRoutes'));
 app.use('/employees', authMiddleware.authenticateToken, require('./routes/employeeRoutes'));
 app.use('/sessions', authMiddleware.authenticateToken, require('./routes/sessionRoutes'));
