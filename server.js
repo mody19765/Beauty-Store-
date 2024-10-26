@@ -15,7 +15,6 @@ const PORT = process.env.PORT || 3000;
 connectDB();
 
 // Middleware
-app.use(bodyParser.json());
 
 // CORS Setup
 app.use((req, res, next) => {
@@ -34,6 +33,7 @@ app.options('*', (req, res) => {
   res.sendStatus(204);
 });
 
+app.use(bodyParser.json());
 
 // Routes
 app.use('/', require('./routes/authRoutes')); // Auth routes
