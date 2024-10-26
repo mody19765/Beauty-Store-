@@ -39,7 +39,7 @@ app.use(cors(corsOptions));
 app.options('*', (req, res) => {
   console.log(req.headers);
   
-  res.header("Access-Control-Allow-Origin", req.headers.origin);
+  res.header("Access-Control-Allow-Origin", "https://beauty-store-pi.vercel.app");
   res.header("Access-Control-Allow-Credentials", "true");
   res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
   res.header("Access-Control-Allow-Headers", "Content-Type,Authorization");
