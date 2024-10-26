@@ -37,12 +37,19 @@ const corsOptions = {
         "Access-Control-Allow-Credentials":true,
         "Access-Control-Allow-Credentials":"*",
         "Access-Control-Allow-Credentials":"true",
-        "Access-Control-Allow-Methods": 'POST',
+        "Access-Control-Allow-Methods": "'GET', 'POST', 'PUT', 'DELETE'",
         "Access-Control-Allow-Headers": "'Access-Control-Allow-Headers: Origin, Content-Type, X-Auth-Token'"
   } 
 };
 
 app.use(cors(corsOptions));
+app.options('*', (req, res) => {
+  res.header("Access-Control-Allow-Origin", "https://beauty-store-pi.vercel.app");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept, Origin, X-Client-Key, X-Client-Token, X-Client-Secret");
+  return res.sendStatus(200); // Ensure HTTP 200 OK status for preflight
+});
 
 // Preflight request handling for all routes
 app.options('*', cors(corsOptions));
