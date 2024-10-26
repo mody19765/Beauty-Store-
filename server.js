@@ -18,41 +18,13 @@ connectDB();
 app.use(bodyParser.json());
 
 // CORS Setup
-const allowedOrigins = ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app', 'https://beauty-store-pi.vercel.app']
-const corsOptions = {
-  origin: function (origin, callback) {
-    // If the request origin is in the allowedOrigins list, allow it
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true, // Allow cookies/auth headers
-  allowedHeaders: ['Content-Type', 'Authorization'],
-    headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "*",
-        "Access-Control-Allow-Credentials":true,
-        "Access-Control-Allow-Credentials":"*",
-        "Access-Control-Allow-Credentials":"true",
-        "Access-Control-Allow-Methods": "'GET', 'POST', 'PUT', 'DELETE'",
-        "Access-Control-Allow-Headers": "'Access-Control-Allow-Headers: Origin, Content-Type, X-Auth-Token'"
-  } 
-};
-
-app.use(cors(corsOptions));
-app.options('*', (req, res) => {
-  res.header("Access-Control-Allow-Origin", "https://beauty-store-pi.vercel.app");
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept, Origin, X-Client-Key, X-Client-Token, X-Client-Secret");
-  return res.sendStatus(200); // Ensure HTTP 200 OK status for preflight
-});
-
+res.header('Access-Control-Allow-Origin', 'https://beauty-store-pi.vercel.app'); // Replace with your actual origin
+       res.header('Access-Control-Allow-Credentials', 'true');
+       res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+       res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+       next();
+     
 // Preflight request handling for all routes
-app.options('*', cors(corsOptions));
 
 
 
