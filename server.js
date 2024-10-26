@@ -18,33 +18,34 @@ connectDB();
 app.use(bodyParser.json());
 
 // CORS Setup
-
 const allowedOrigins = ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app', 'https://beauty-store-pi.vercel.app'];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests from allowed origins or if there's no origin (like postman)
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+    if (allowedOrigins.includes(origin) || !origin) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: 'GET,POST,PUT,DELETE,OPTIONS', // Use a string
-  credentials: true, // Allow credentials like cookies/auth headers
-  allowedHeaders: 'Content-Type,Authorization', // Use a string
+  methods: 'GET,POST,PUT,DELETE,OPTIONS', // Corrected methods format
+  credentials: true,
+  allowedHeaders: 'Content-Type,Authorization'
 };
 
 app.use(cors(corsOptions));
 
 // Explicitly handle preflight requests
 app.options('*', (req, res) => {
+  console.log(req.headers);
+  
   res.header("Access-Control-Allow-Origin", req.headers.origin);
   res.header("Access-Control-Allow-Credentials", "true");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type,Authorization");
   res.sendStatus(200); // Ensure HTTP 200 OK status for preflight
 });
+
 
 // Routes
 app.use('/', require('./routes/authRoutes')); // Auth routes
