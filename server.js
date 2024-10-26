@@ -18,17 +18,14 @@ connectDB();
 app.use(bodyParser.json());
 
 // CORS Setup
-res.header('Access-Control-Allow-Origin', 'https://beauty-store-pi.vercel.app'); // Replace with your actual origin
-       res.header('Access-Control-Allow-Credentials', 'true');
-       res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-       res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-       next();
-     
-// Preflight request handling for all routes
-app.use(cors({
-  origin: 'https://beauty-store-pi.vercel.app',
-  credentials: true, 
-}));
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://beauty-store-pi.vercel.app'); // Replace with your frontend domain
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  next();
+});
 
 
 
