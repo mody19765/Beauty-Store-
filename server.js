@@ -15,6 +15,7 @@ const PORT = process.env.PORT || 3000;
 connectDB();
 
 // Middleware
+app.use(bodyParser.json());
 
 // CORS Setup
 app.use((req, res, next) => {
@@ -24,7 +25,20 @@ app.use((req, res, next) => {
   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
   next();
 });
+const allowedOrigins = ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app', 'https://beauty-store-pi.vercel.app'];
 
+const corsOptions = {
+    origin: function (origin, callback) {
+        if (allowedOrigins.includes(origin) || !origin) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
 app.options('*', (req, res) => {
   res.header("Access-Control-Allow-Origin", req.headers.origin || "*");
   res.header("Access-Control-Allow-Credentials", "true"); // Ensure this is always true
@@ -33,7 +47,7 @@ app.options('*', (req, res) => {
   res.sendStatus(204);
 });
 app.use(cors())
-app.use(bodyParser.json());
+app.use(cors(corsOptions));
 
 // Routes
 app.use('/login', require('./routes/authRoutes')); // Auth routes
@@ -61,3 +75,5 @@ bcrypt.hash(password, saltRounds, function (err, hash) {
   if (err) throw err;
   console.log('Hashed password:', hash);
 });
+
+
