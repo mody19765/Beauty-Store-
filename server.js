@@ -18,7 +18,7 @@ connectDB();
 app.use(bodyParser.json());
 
 // CORS Setup
-const allowedOrigins = ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app/login', 'https://beauty-store-pi.vercel.app'];
+const allowedOrigins = ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app', 'https://beauty-store-pi.vercel.app'];
 
 const corsOptions = {
   origin: function (origin, callback) {
@@ -28,25 +28,21 @@ const corsOptions = {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: 'GET,POST,PUT,DELETE,OPTIONS', // Corrected methods format
   credentials: true,
-  allowedHeaders: 'Content-Type,Authorization'
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Ensure correct method format
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
 
 app.use(cors(corsOptions));
 
-// Explicitly handle preflight requests
-app.options('*', (req, response) => {
-  console.log(req.headers);
-
-    response.setHeader("Access-Control-Allow-Origin", "*");
-    response.setHeader("Access-Control-Allow-Credentials", "true");
-    response.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
-    response.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
-
-    response.sendStatus(200); // Ensure HTTP 200 OK status for preflight
+// Correct handling of preflight requests
+app.options('*', (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", req.headers.origin || "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.status(204).end(); // 204 No Content response for preflight requests
 });
-
 
 // Routes
 app.use('/', require('./routes/authRoutes')); // Auth routes
