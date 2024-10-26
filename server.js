@@ -47,6 +47,8 @@ const saltRounds = 10;const corsOptions = {
     }
   },
   credentials: true, // Ensure this is true for cookies/auth headers
+  "Access-Control-Allow-Credentials":true ,
+  "Access-Control-Allow-Credentials":"true" ,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 };
