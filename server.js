@@ -47,8 +47,6 @@ const saltRounds = 10;const corsOptions = {
     }
   },
   credentials: true, // Ensure this is true for cookies/auth headers
-  "Access-Control-Allow-Credentials":true ,
-  "Access-Control-Allow-Credentials":"true" ,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 };
@@ -58,7 +56,12 @@ app.use(cors(corsOptions));
 // Handle preflight requests:
 app.options('*', (req, res) => {
   res.header("Access-Control-Allow-Origin", req.headers.origin || "*");
+  res.setHeader("Access-Control-Allow-Origin", req.headers.origin || "*");
   res.header("Access-Control-Allow-Credentials", "true"); // Ensure it's explicitly true
+  res.setHeader("Access-Control-Allow-Credentials", "true"); // Ensure it's explicitly true
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.sendStatus(204); // Return 204 for preflight
