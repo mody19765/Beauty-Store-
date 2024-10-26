@@ -25,6 +25,10 @@ res.header('Access-Control-Allow-Origin', 'https://beauty-store-pi.vercel.app');
        next();
      
 // Preflight request handling for all routes
+app.use(cors({
+  origin: 'https://beauty-store-pi.vercel.app',
+  credentials: true, 
+}));
 
 
 
