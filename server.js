@@ -19,15 +19,32 @@ app.use(bodyParser.json());
 
 // CORS Setup
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://beauty-store-pi.vercel.app'); // Replace with your frontend domain
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  next();
+const allowedOrigins = ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app', 'https://beauty-store-pi.vercel.app'];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests from allowed origins or if there's no origin (like postman)
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: 'GET,POST,PUT,DELETE,OPTIONS', // Use a string
+  credentials: true, // Allow credentials like cookies/auth headers
+  allowedHeaders: 'Content-Type,Authorization', // Use a string
+};
+
+app.use(cors(corsOptions));
+
+// Explicitly handle preflight requests
+app.options('*', (req, res) => {
+  res.header("Access-Control-Allow-Origin", req.headers.origin);
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.sendStatus(200); // Ensure HTTP 200 OK status for preflight
 });
-
-
 
 // Routes
 app.use('/', require('./routes/authRoutes')); // Auth routes
