@@ -18,7 +18,7 @@ connectDB();
 app.use(bodyParser.json());
 
 // CORS Setup
-const allowedOrigins = ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app', 'https://beauty-store-pi.vercel.app'];
+const allowedOrigins = ['https://beauty-store-pi.vercel.app','http://localhost:3000', 'https://beauty-store-alpha.vercel.app', 'https://beauty-store-pi.vercel.app'];
 
 const corsOptions = {
   origin: function (origin, callback) {
