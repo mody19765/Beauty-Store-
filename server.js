@@ -34,7 +34,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-
+app.use(cors())
 // Correct handling of preflight requests
 app.options('*', (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", req.headers.origin || "*");
