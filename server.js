@@ -19,27 +19,17 @@ app.use(bodyParser.json());
 
 // CORS Setup
 const allowedOrigins = ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app'];
-const corsOptions = {
+const corsConfig = {
+  credentials: true, // The Access-Control-Allow-Credentials header
+  optionsSuccessStatus: 200, // Some legacy browsers choke on 204
   origin: function (origin, callback) {
-    // If the request origin is in the allowedOrigins list, allow it
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true, // Allow cookies/auth headers
-  allowedHeaders: ['Content-Type', 'Authorization'],
+      const isOriginInWhiteList = origin && allowedOrigins.includes(origin);
+      callback(null, isOriginInWhiteList);
+  }
 };
 
-app.use(cors(corsOptions));
-
-// Preflight request handling for all routes
-app.options('*', cors(corsOptions));
-
-
-
+app.use(cors(corsConfig));
+app.options('*', cors(corsConfig)); // Enabling CORS Pre-Flight
 // Routes
 app.use('/login', require('./routes/authRoutes')); // Auth routes
 app.use('/designers', authMiddleware.authenticateToken, require('./routes/designerRoutes'));
