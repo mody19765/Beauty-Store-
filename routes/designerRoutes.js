@@ -4,6 +4,7 @@ const designerController = require('../controllers/designerController');
 const { authenticateToken, authorizeRole } = require('../middlewares/authMiddleware');
 
 // Apply authentication middleware
+router.use(authenticateToken);
 
 // Only admins can create, update, or delete designers
 router.get('/', designerController.getAllDesigners); 
