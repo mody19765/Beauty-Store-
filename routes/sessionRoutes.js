@@ -4,10 +4,10 @@ const { authenticateToken, authorizeRole } = require('../middlewares/authMiddlew
 const sessionController = require('../controllers/sessionController');
 
 // Apply authentication middleware
-router.use(authenticateToken);
+//router.use(authenticateToken);
 
 // Public route to get sessions
-router.get('/',authenticateToken,sessionController.getAllSessions);
+//router.get('/',authenticateToken,sessionController.getAllSessions);
 router.get('/:id', sessionController.getSessionById);
 
 // Only admins can create, update, or delete sessions
