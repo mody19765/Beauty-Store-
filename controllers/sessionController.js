@@ -68,32 +68,6 @@ exports.createSession = async (req, res) => {
   }
 };
 exports.getAllSessions = async (req, res) => {
-  try {
-    const sessions = await Session.find()
-      .populate('branch_id')
-      .populate({
-        path: 'services',
-        populate: [
-          { path: 'service_id' },
-          { path: 'designer_id' }
-        ]
-      });
-
-    const updatedSessions = sessions.map(session => {
-      const updatedServices = session.services.map(service => ({
-        ...service.toObject(),
-        session_id: session._id
-      }));
-      return {
-        ...session.toObject(),
-        services: updatedServices
-      };
-    });
-
-    res.status(200).json(updatedSessions);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
 };
 exports.getSessionById = async (req, res) => {
   try {
