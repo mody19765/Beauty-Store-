@@ -18,7 +18,7 @@ connectDB();
 app.use(bodyParser.json());
 
 // CORS Setup
-const allowedOrigins = ['https://beauty-store-pi.vercel.app'];
+const allowedOrigins = ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app','https://beauty-store-pi.vercel.app'];
 const corsConfig = {
   credentials: true, // The Access-Control-Allow-Credentials header
   optionsSuccessStatus: 200, // Some legacy browsers choke on 204
