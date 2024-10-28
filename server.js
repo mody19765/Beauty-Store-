@@ -22,7 +22,7 @@ const allowedOrigins = ['http://localhost:3000', 'https://beauty-store-alpha.ver
 const corsConfig = {
   credentials: true,
   optionsSuccessStatus: 200,
-  origin: function (origin, callback) {
+  origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -32,7 +32,8 @@ const corsConfig = {
 };
 
 app.use(cors(corsConfig));
-app.options('*', cors());
+app.options('*', cors(corsConfig)); 
+
 // Enabling CORS Pre-Flight
 // Routes
 app.use('/login', require('./routes/authRoutes')); // Auth routes
