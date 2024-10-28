@@ -32,7 +32,7 @@ const corsConfig = {
 };
 
 app.use(cors(corsConfig));
-//app.options('*', cors(corsConfig));
+app.options('*', cors());
 // Enabling CORS Pre-Flight
 // Routes
 app.use('/login', require('./routes/authRoutes')); // Auth routes
