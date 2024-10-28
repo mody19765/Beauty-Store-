@@ -18,18 +18,22 @@ connectDB();
 app.use(bodyParser.json());
 
 // CORS Setup
-const allowedOrigins = ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app','https://beauty-store-pi.vercel.app'];
+const allowedOrigins = ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app', 'https://beauty-store-pi.vercel.app'];
 const corsConfig = {
-  credentials: true, // The Access-Control-Allow-Credentials header
-  optionsSuccessStatus: 200, // Some legacy browsers choke on 204
+  credentials: true,
+  optionsSuccessStatus: 200,
   origin: function (origin, callback) {
-      const isOriginInWhiteList = origin && allowedOrigins.includes(origin);
-      callback(null, isOriginInWhiteList);
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
   }
 };
 
 app.use(cors(corsConfig));
-app.options('*', cors(corsConfig)); // Enabling CORS Pre-Flight
+app.options('*', cors(corsConfig));
+// Enabling CORS Pre-Flight
 // Routes
 app.use('/login', require('./routes/authRoutes')); // Auth routes
 app.use('/designers', authMiddleware.authenticateToken, require('./routes/designerRoutes'));
