@@ -33,7 +33,7 @@ app.options('*', cors(corsConfig)); // Enabling CORS Pre-Flight
 // Routes
 app.use('/login', require('./routes/authRoutes')); // Auth routes
 app.use('/designers', authMiddleware.authenticateToken, require('./routes/designerRoutes'));
-app.use('/employees', authMiddleware.authenticateToken, require('./routes/employeeRoutes'));
+app.use('/user', authMiddleware.authenticateToken, require('./routes/userRoutes'));
 app.use('/sessions', authMiddleware.authenticateToken, require('./routes/sessionRoutes'));
 app.use('/services', authMiddleware.authenticateToken, require('./routes/serviceRoutes'));
 app.use('/branches', authMiddleware.authenticateToken, require('./routes/branchRoutes'));
