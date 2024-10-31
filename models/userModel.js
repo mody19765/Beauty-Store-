@@ -6,7 +6,7 @@ const userSchema = new Schema({
   email: { type: String, required: true, unique: true },
   phone: { type: String, required: true },
   password: { type: String },
-  role: { type: String, enum: ['employee', 'media'], required: true },
+  role: { type: String, enum: ['user', 'admin'], required: true },
   isPasswordSet: { type: Boolean, default: false }
 }, { timestamps: true });
 
