@@ -18,21 +18,12 @@ connectDB();
 app.use(bodyParser.json());
 
 // CORS Setup
-const allowedOrigins = ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app', 'https://beauty-store-pi.vercel.app'];
-const corsConfig = {
+const corsOptions = {
   credentials: true,
-  optionsSuccessStatus: 200,
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  }
+  origin: ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app', 'https://beauty-store-pi.vercel.app']// Whitelist the domains you want to allow
 };
 
-app.use("*",cors(corsConfig));
-app.options('*', cors(corsConfig)); 
+app.use(cors(corsOptions)); // Use the cors middleware with your options
 
 // Enabling CORS Pre-Flight
 // Routes
