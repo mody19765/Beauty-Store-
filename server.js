@@ -31,15 +31,9 @@ const corsConfig = {
   }
 };
 
-app.use(cors(corsConfig));
+app.use("*",cors(corsConfig));
 app.options('*', cors(corsConfig)); 
-app.use(function(req, res, next) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  next();
-});
+
 // Enabling CORS Pre-Flight
 // Routes
 app.use('/login', require('./routes/authRoutes')); // Auth routes
