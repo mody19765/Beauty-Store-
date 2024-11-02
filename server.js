@@ -26,6 +26,16 @@ const corsOptions = {
 app.use(cors(corsOptions)); // Use the cors middleware with your options
 
 // Enabling CORS Pre-Flight
+
+app.options('/login',  cors(corsOptions)); // Auth routes
+app.options('/designers', cors(corsOptions));
+app.options('/users', cors(corsOptions));
+app.options('/sessions',cors(corsOptions));
+app.options('/services', cors(corsOptions));
+app.options('/branches', cors(corsOptions));
+app.options('/customers', cors(corsOptions));
+app.options('/history', cors(corsOptions));
+
 // Routes
 app.use('/login', require('./routes/authRoutes')); // Auth routes
 app.use('/designers', authMiddleware.authenticateToken, require('./routes/designerRoutes'));
