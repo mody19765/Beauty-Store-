@@ -20,7 +20,7 @@ app.use(bodyParser.json());
 // CORS Setup
 const corsOptions = {
   credentials: true,
-  origin: ['http://localhost:3000', 'https://beauty-store-alpha.vercel.app', 'https://beauty-store-pi.vercel.app']// Whitelist the domains you want to allow
+  origin: 'https://beauty-store-pi.vercel.app'// Whitelist the domains you want to allow
 };
 
 app.use(cors(corsOptions)); // Use the cors middleware with your options
