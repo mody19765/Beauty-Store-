@@ -15,13 +15,18 @@ exports.createDesigner = async (req, res) => {
 
 exports.getAllDesigners = async (req, res) => {
   try {
-    const designers = await Designer.find();
+    const designers = await Designer.find()
+
+      .populate('specialization', 'service_name') // Populate only the 'name' field of each specialization
+      .populate('branch_id', 'branch_name'); // If you want to populate the branch name as well
+
     res.status(200).json(designers);
   } catch (error) {
     console.error("Error in getAllDesigners:", error);
     res.status(500).json({ message: error.message });
   }
 };
+
 
 exports.getDesignerById = async (req, res) => {
   try {
