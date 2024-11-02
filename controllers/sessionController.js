@@ -321,13 +321,13 @@ exports.updateServiceInSession = async (req, res) => {
     service.designer_id = designer_id;
 
     await session.save();
-  // Log the update in history
-  await logHistory({
-    userId: req.user._id,
-    action: `Updated service ${serviceId} in session ${sessionId}`,
-    timestamp: new Date(),
-    details: `Updated to new service: ${newService._id}, start_time: ${service.service_start_time}, end_time: ${service.service_end_time}, designer_id: ${designer_id}`
-  });
+    // Log the update in history
+    await logHistory({
+      userId: req.user._id,
+      action: `Updated service ${serviceId} in session ${sessionId}`,
+      timestamp: new Date(),
+      details: `Updated to new service: ${newService._id}, start_time: ${service.service_start_time}, end_time: ${service.service_end_time}, designer_id: ${designer_id}`
+    });
     res.status(200).json({ message: 'Service updated successfully', session });
   }
   catch (error) {
@@ -364,7 +364,16 @@ exports.deleteServiceFromSession = async (req, res) => {
   }
 };
 
-
+exports.findServiceInSessionById = async (req, res) => {
+  try {
+    const { serviceId } = req.params;
+    const service = await Service.findById(serviceId);
+    if (!service) throw new Error("Service not found in session");
+    res.json(service);
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
+};
 
 
 

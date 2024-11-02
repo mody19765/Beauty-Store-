@@ -4,7 +4,7 @@ const router = express.Router();
 const userController = require('../controllers/userController');
 const { authenticateToken, authorizeRole } = require('../middlewares/authMiddleware');
 router.use(authenticateToken);
-
+router.post('/add-user', authenticateToken, authorizeRole('admin'), userController.addUserByAdmin);
 router.put('/:id',authorizeRole('admin'), userController.updateUser);
 router.delete('/:id', authorizeRole('admin'),userController.deleteUser);
 router.get('/:id', authorizeRole('admin'),userController.findById);

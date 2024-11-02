@@ -9,6 +9,7 @@ router.use(authenticateToken);
 // Public route to get sessions
 router.get('/',authenticateToken,sessionController.getAllSessions);
 router.get('/:id', sessionController.getSessionById);
+router.get('/services/:id', sessionController.findServiceInSessionById);
 
 // Only admins can create, update, or delete sessions
 router.post('/', authorizeRole('admin'), sessionController.createSession);

@@ -5,10 +5,17 @@ exports.createCustomer = async (req, res) => {
   try {
     const customer = new Customer(req.body);
     await customer.save();
+    
+    await logHistory({
+      userId: req.user.id,
+      action: 'CREATE_CUSTOMER',
+      details: `${req.user.id} added customer : ${customer}}`,
+     });
     res.status(201).json(customer);
-    await logHistory(req.user.id, 'CREATE_CUSTOMER', `Created customer '${customer.first_name} ${customer.last_name}'`, customer._id);
 
-  } catch (error) {
+  } 
+  
+  catch (error) {
     console.error("Error in updateCustomer:", error);
     res.status(400).json({ message: error.message });
   }

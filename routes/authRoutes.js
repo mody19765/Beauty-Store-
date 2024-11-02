@@ -5,7 +5,6 @@ const { authenticateToken, authorizeRole } = require('../middlewares/authMiddlew
 const { logout } = require('../controllers/authController');
 
 // Add user %Admin
-router.post('/add-user', authenticateToken, authorizeRole('admin'), authController.addUserByAdmin);
 
 // Set password after invitation
 router.post('/set-password/:token', authController.setPassword); // login/set-password/:token { password:123}

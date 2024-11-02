@@ -1,7 +1,41 @@
 // controllers/userController.js
 const User = require('../models/userModel');
 const userService = require('../services/userServices');
+exports.addUserByAdmin = async (req, res) => {
+  try {
+    const { name, email, phone, role } = req.body;
 
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+
+    // Create a new user with no password set initially
+    const user = new User({ name, email, phone, role, isPasswordSet: false });
+
+    // Save user to the database
+    await user.save();
+
+    // Generate token for email invitation (expires in 1 hour)
+    const token = jwt.sign({ id: user._id }, "mo", { expiresIn: '1h' });
+
+    // Send the invitation email with the token link
+    await sendInvitationEmail(email, token);
+    await logHistory({
+      userId: req.user.id,
+      action: 'Add User by Admin',
+      details: `Admin : ${req.user.id} added user: ${name} with role: ${role}`,
+     });
+console.log("user : ",user);
+
+    // Return success message
+    res.status(201).json({ message: 'User added and invitation sent', token });
+  } catch (error) {
+    console.error('Error in addUserByAdmin:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
 exports.getAllUsers = async (req, res) => {
  try {
   const users = await User.find();
