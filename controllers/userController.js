@@ -1,6 +1,11 @@
 // controllers/userController.js
 const User = require('../models/userModel');
+const jwt = require('jsonwebtoken');
+const logHistory = require('../utils/historyLogger');
+const bcrypt = require('bcrypt');
 const userService = require('../services/userServices');
+const { sendPasswordResetEmail, sendInvitationEmail } = require('../utils/emailService');
+const BlacklistedToken = require('../models/blacklistedToken'); // Optional: If implementing blacklist
 exports.addUserByAdmin = async (req, res) => {
   try {
     const { name, email, phone, role } = req.body;
@@ -93,3 +98,4 @@ exports.searchUsers = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+

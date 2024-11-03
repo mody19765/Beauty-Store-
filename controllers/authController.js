@@ -4,79 +4,10 @@ const bcrypt = require('bcrypt');
 const { sendPasswordResetEmail, sendInvitationEmail } = require('../utils/emailService');
 const BlacklistedToken = require('../models/blacklistedToken'); // Optional: If implementing blacklist
 const logHistory = require('../utils/historyLogger');
-exports.addUserByAdmin = async (req, res) => {
-  try {
-    const { name, email, phone, role } = req.body;
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
-    }
-
-    // Create a new user with no password set initially
-    const user = new User({ name, email, phone, role, isPasswordSet: false });
-
-    // Save user to the database
-    await user.save();
-
-    // Generate token for email invitation (expires in 1 hour)
-    const token = jwt.sign({ id: user._id }, "mo", { expiresIn: '1h' });
-
-    // Send the invitation email with the token link
-    await sendInvitationEmail(email, token);
-    await logHistory({
-      userId: req.user.id,
-      action: 'Add User by Admin',
-      details: `Admin : ${req.user.id} added user: ${name} with role: ${role}`,
-     });
-console.log("user : ",user);
-
-    // Return success message
-    res.status(201).json({ message: 'User added and invitation sent', token });
-  } catch (error) {
-    console.error('Error in addUserByAdmin:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-};
 
 
 // Set password after clicking invitation link
-exports.setPassword = async (req, res) => {
-  try {
-    const { token } = req.params;
-    const { password } = req.body;
-
-    const decoded = jwt.verify(token, "mo");
-    const user = await User.findById(decoded.id);
-
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid or expired token' });
-    }
-
-    if (!user.isPasswordSet) {
-      // Log to confirm the user and hashed password
-      console.log("Setting password for:", user.email);
-      const hashedPassword = await bcrypt.hash(password, 10);
-      console.log("Generated hash:", hashedPassword);
-
-      user.password = hashedPassword;
-      user.isPasswordSet = true;
-      await user.save();
-
-      console.log("Password successfully saved:", user.password);
-    }
-    res.status(200).json({ message: 'Password set successfully' });
-  } catch (error) {
-    if (error.name === 'TokenExpiredError') {
-      return res.status(400).json({ message: 'Token expired. Please request a new invitation.' });
-    }
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(400).json({ message: 'Invalid token.' });
-    }
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-};
 
 // Login function
 exports.login = async (req, res) => {
@@ -111,9 +42,6 @@ exports.login = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
-
-
-
 // controllers/authController.js
 
 exports.logout = async (req, res) => {
@@ -223,6 +151,44 @@ exports.addAdmin = async (req, res) => {
     await newAdmin.save();
     res.status(201).json({ message: 'Admin created successfully.' });
   } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+exports.setPassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    const decoded = jwt.verify(token, "mo");
+    console.log("mess 1:",decoded.id);
+    console.log("mess 2 :",decoded);
+
+    const user = await User.findById(decoded.id);
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired token' });
+    }
+
+    if (!user.isPasswordSet) {
+      // Log to confirm the user and hashed password
+      console.log("Setting password for:", user.email);
+      const hashedPassword = await bcrypt.hash(password, 10);
+      console.log("Generated hash:", hashedPassword);
+
+      user.password = hashedPassword;
+      user.isPasswordSet = true;
+      await user.save();
+
+      console.log("Password successfully saved:", user.password);
+    }
+    res.status(200).json({ message: 'Password set successfully' });
+  } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      return res.status(400).json({ message: 'Token expired. Please request a new invitation.' });
+    }
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(400).json({ message: 'Invalid token.' });
+    }
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
