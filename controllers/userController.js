@@ -23,7 +23,7 @@ exports.addUserByAdmin = async (req, res) => {
     await user.save();
 
     // Generate token for email invitation (expires in 1 hour)
-    const token = jwt.sign({ id: user._id }, "mo", { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id }, "mo", { expiresIn: '6h' });
 
     // Send the invitation email with the token link
     await sendInvitationEmail(email, token);

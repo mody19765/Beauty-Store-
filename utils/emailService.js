@@ -15,7 +15,7 @@ exports.sendInvitationEmail = async (email, token) => {
     subject: 'Set Your Password12',
     html: `
     <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
-      <h2>Welcome to Our Platform</h2>
+      <h2>Welcome to Inklinc</h2>
       <p>Click the button below to set your password:</p>
       <div style="text-align: center; margin: 20px;">
         <a href="${process.env.CLIENT_URL}/setpassword?token=${token}" 
