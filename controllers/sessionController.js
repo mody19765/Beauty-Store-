@@ -8,53 +8,51 @@ const History = require('../models/history');
 
 exports.createSession = async (req, res) => {
   try {
-    const { Branch_id, services, client_name, phone_number } = req.body;
+    const { services, client_name } = req.body;
 
-    let client = await Customer.findOne({ phone_number });
-    if (!client) {
-      return res.status(400).json({ message: "Client does not exist. Please create the client first." });
+    if (!Array.isArray(services) || services.length === 0) {
+      return res.status(400).json({ message: 'Services should be a non-empty array.' });
     }
 
-    if (!Branch_id || !services || !Array.isArray(services) || services.length === 0) {
-      return res.status(400).json({ message: 'Branch_id and services must be provided, and services should be an array.' });
-    }
+    // Get current date for validation
+    const currentDate = new Date();
 
-    const currentTime = new Date();
-    for (let i = 0; i < services.length; i++) {
-      const { service_start_time, designer_id } = services[i];
+    // Validate each service for overlapping designer bookings
+    for (let service of services) {
+      const { service_start_time, designer_id } = service;
       const startTime = new Date(service_start_time);
 
-      if (startTime <= currentTime) {
-        return res.status(400).json({ message: `Service start time for ${services[i].service_name} must be a future date.` });
+      if (isNaN(startTime.getTime()) || startTime < currentDate) {
+        return res.status(400).json({ message: 'Each service must have a valid future start time.' });
       }
 
-      for (let j = i + 1; j < services.length; j++) {
-        const otherService = services[j];
-        if (
-          otherService.designer_id === designer_id &&
-          new Date(otherService.service_start_time).getTime() < startTime.getTime() + 45 * 60000 &&
-          new Date(otherService.service_start_time).getTime() >= startTime.getTime()
-        ) {
-          return res.status(400).json({
-            message: `Designer ${designer_id} is already scheduled for another service at this time.`,
-          });
-        }
+      const endTime = new Date(startTime.getTime() + 45 * 60000);
+
+      // Query to find any overlapping bookings for the same designer
+      const overlappingSession = await Session.findOne({
+        "services.designer_id": designer_id,
+        $or: [
+          { "services.service_start_time": { $lt: endTime, $gte: startTime } },
+          { "services.service_end_time": { $gt: startTime, $lte: endTime } }
+        ]
+      });
+
+      if (overlappingSession) {
+        return res.status(400).json({
+          message: `Designer is already booked for a service between ${startTime.toISOString()} and ${endTime.toISOString()}`
+        });
       }
     }
 
-    const session = new Session({ Branch_id, services, phone_number, client_name });
+    // Proceed to create session if no overlaps
+    const session = new Session({ client_name, services });
     await session.save();
-    await logHistory({
-      userId: req.user._id,
-      action: `Created session ${session._id}`,
-      timestamp: new Date(),
-      details: `Created session with Branch ID: ${Branch_id}, services: ${JSON.stringify(services)}, client_name: ${client_name}, phone_number: ${phone_number}`,
-    });
-    res.status(201).json(session);
+    res.status(201).json({ message: 'Session created successfully', session });
   } catch (error) {
-    res.status(500).json({ message: 'An error occurred while creating the session.', error: error.message });
+    res.status(500).json({ message: 'Error creating session', error: error.message });
   }
 };
+
 exports.getAllSessions = async (req, res) => {
   try {
     const sessions = await Session.find()
