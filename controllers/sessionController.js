@@ -334,28 +334,38 @@ exports.deleteServiceFromSession = async (req, res) => {
   try {
     const { sessionId, serviceId } = req.params;
 
+    // Find the session
     const session = await Session.findById(sessionId);
-    if (!session) return res.status(404).json({ message: 'Session not found' });
-
-    const service = session.services.id(serviceId);
-    if (!service) return res.status(404).json({ message: 'Service not found' });
-
-    service.remove();
-    await session.save();
-
-    if (req.user && req.user._id) { // Ensure req.user is available
-      await logHistory({
-        userId: req.user._id,
-        action: `Deleted service ${serviceId} from session ${sessionId}`,
-        timestamp: new Date(),
-        details: `Service ${serviceId} removed from Session ID: ${sessionId}`
-      });
+    if (!session) {
+      return res.status(404).json({ message: 'Session not found' });
     }
 
-    res.status(200).json({ message: 'Service deleted successfully', session });
+    // Find and remove the service
+    const service = session.services.id(serviceId);
+    if (!service) {
+      return res.status(404).json({ message: 'Service not found in session' });
+    }
+    service.remove();
+
+    // Check if there are remaining services in the session
+    if (session.services.length === 0) {
+      await Session.findByIdAndDelete(sessionId); // Delete the session if no services remain
+      return res.status(200).json({ message: 'Session deleted as all services were removed' });
+    }
+
+    // Save the session if it still has services
+    await session.save();
+
+    // Log deletion in history
+    await logHistory({
+      userId: req.user._id,
+      action: `Deleted service ${serviceId} from session ${sessionId}`,
+      timestamp: new Date(),
+      details: `Deleted service ${serviceId}; session still active`
+    });
+    res.status(200).json({ message: 'Service removed successfully', session });
   } catch (error) {
-    console.error("Error logging history:", error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Error deleting service', error: error.message });
   }
 };
 
