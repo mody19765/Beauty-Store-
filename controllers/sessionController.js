@@ -253,12 +253,10 @@ exports.updateServiceInSession = async (req, res) => {
     const { sessionId, serviceId } = req.params;
     const { new_service_id, service_start_time, designer_id } = req.body;
 
-    // Validate required fields
     if (!new_service_id || !service_start_time || !designer_id) {
       return res.status(400).json({ message: 'Missing required fields: new_service_id, service_start_time, and designer_id' });
     }
 
-    // Convert start time to Date and ensure it's not in the past
     const startTime = new Date(service_start_time);
     if (startTime < new Date()) {
       return res.status(400).json({ message: 'Service start time cannot be in the past' });
@@ -266,25 +264,34 @@ exports.updateServiceInSession = async (req, res) => {
 
     const endTime = new Date(startTime.getTime() + 45 * 60000);
 
-    // Validate the session
     const session = await Session.findById(sessionId);
     if (!session) {
       return res.status(404).json({ message: 'Session not found' });
     }
 
-    // Validate the new service ID
     const newService = await Service.findById(new_service_id);
     if (!newService) {
       return res.status(404).json({ message: 'New service not found' });
     }
 
-    // Find the service to update in the session
     const service = session.services.id(serviceId);
     if (!service) {
       return res.status(404).json({ message: 'Service not found in session' });
     }
 
-    // Check for overlapping designer bookings in other sessions
+    // Internal overlap check
+    const internalOverlap = session.services.some(svc =>
+      svc._id !== serviceId &&
+      svc.designer_id === designer_id &&
+      new Date(svc.service_start_time) < endTime &&
+      new Date(svc.service_end_time) > startTime
+    );
+
+    if (internalOverlap) {
+      return res.status(400).json({ message: 'Designer is already booked during the specified time slot in this session.' });
+    }
+
+    // Cross-session overlap check
     const overlappingService = await Session.findOne({
       _id: { $ne: sessionId },
       "services.designer_id": designer_id,
@@ -295,13 +302,9 @@ exports.updateServiceInSession = async (req, res) => {
     });
 
     if (overlappingService) {
-      return res.status(400).json({
-        message: 'Designer is already booked during the specified time slot'
-      });
+      return res.status(400).json({ message: 'Designer is already booked during the specified time slot in another session.' });
     }
-    const user = req.user; // Assume authenticated user details are stored in req.user
 
-    // Update the service details in the session with the new service
     service._id = newService._id;
     service.service_name = newService.service_name;
     service.service_start_time = startTime.toISOString();
@@ -309,7 +312,6 @@ exports.updateServiceInSession = async (req, res) => {
     service.designer_id = designer_id;
 
     await session.save();
-    // Log the update in history
     await logHistory({
       userId: req.user._id,
       action: `Updated service ${serviceId} in session ${sessionId}`,
@@ -317,11 +319,11 @@ exports.updateServiceInSession = async (req, res) => {
       details: `Updated to new service: ${newService._id}, start_time: ${service.service_start_time}, end_time: ${service.service_end_time}, designer_id: ${designer_id}`
     });
     res.status(200).json({ message: 'Service updated successfully', session });
-  }
-  catch (error) {
+  } catch (error) {
     res.status(500).json({ message: 'Error updating service', error: error.message });
   }
 };
+
 // Delete Service from Session
 exports.deleteServiceFromSession = async (req, res) => {
   try {
