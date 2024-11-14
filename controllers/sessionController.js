@@ -47,8 +47,9 @@ exports.createSession = async (req, res) => {
     // Check if client exists by phone number, create if not
     let client = await Customer.findOne({ phone_number });
     if (!client) {
-      client = await Customer.create({ phone_number, first_name,last_name });
-    }
+ return res.status(400).json({
+          message: `please check the client if he created`
+        });    }
 
     // Proceed to create session if no overlaps
     const session = new Session({ client_name, Branch_id, services, client: client._id });
