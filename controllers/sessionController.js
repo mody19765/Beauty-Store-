@@ -12,45 +12,34 @@ exports.createSession = async (req, res) => {
 
     let client = await Customer.findOne({ phone_number });
     if (!client) {
-      // Log that a client needs to be created if not found
-      console.log("Client does not exist. Proceed to create a new client.");
-      // Proceed to create the client in a different flow instead of here
       return res.status(400).json({ message: "Client does not exist. Please create the client first." });
     }
 
     if (!Branch_id || !services || !Array.isArray(services) || services.length === 0) {
-      return res.status(400).json({ message: 'Branch_id and services must be provided and services should be an array.' });
+      return res.status(400).json({ message: 'Branch_id and services must be provided, and services should be an array.' });
     }
 
     const currentTime = new Date();
-    const serviceValidations = await Promise.all(
-      services.map(async (service) => {
-        const startTime = new Date(service.service_start_time);
+    for (let i = 0; i < services.length; i++) {
+      const { service_start_time, designer_id } = services[i];
+      const startTime = new Date(service_start_time);
 
-        if (startTime <= currentTime) {
-          return { error: `Service start time for ${service.service_name} must be a future date.` };
+      if (startTime <= currentTime) {
+        return res.status(400).json({ message: `Service start time for ${services[i].service_name} must be a future date.` });
+      }
+
+      for (let j = i + 1; j < services.length; j++) {
+        const otherService = services[j];
+        if (
+          otherService.designer_id === designer_id &&
+          new Date(otherService.service_start_time).getTime() < startTime.getTime() + 45 * 60000 &&
+          new Date(otherService.service_start_time).getTime() >= startTime.getTime()
+        ) {
+          return res.status(400).json({
+            message: `Designer ${designer_id} is already scheduled for another service at this time.`,
+          });
         }
-
-        const endTime = new Date(startTime.getTime() + 45 * 60000);
-
-        const overlappingSession = await Session.findOne({
-          'services.designer_id': service.designer_id,
-          $or: [
-            { 'services.service_start_time': { $lt: endTime }, 'services.service_end_time': { $gt: startTime } }
-          ]
-        });
-
-        if (overlappingSession) {
-          return { error: `Designer is already assigned between ${startTime} and ${endTime}.` };
-        }
-
-        return { success: true };
-      })
-    );
-
-    const failedValidation = serviceValidations.find((result) => result.error);
-    if (failedValidation) {
-      return res.status(400).json({ message: failedValidation.error });
+      }
     }
 
     const session = new Session({ Branch_id, services, phone_number, client_name });
@@ -59,10 +48,9 @@ exports.createSession = async (req, res) => {
       userId: req.user._id,
       action: `Created session ${session._id}`,
       timestamp: new Date(),
-      details: `Created session with Branch ID: ${Branch_id}, services: ${JSON.stringify(services)}, client_name: ${client_name}, phone_number: ${phone_number}`
+      details: `Created session with Branch ID: ${Branch_id}, services: ${JSON.stringify(services)}, client_name: ${client_name}, phone_number: ${phone_number}`,
     });
     res.status(201).json(session);
-
   } catch (error) {
     res.status(500).json({ message: 'An error occurred while creating the session.', error: error.message });
   }
