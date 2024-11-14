@@ -8,13 +8,16 @@ const History = require('../models/history');
 
 exports.createSession = async (req, res) => {
   try {
-    const { services, client_name } = req.body;
+    const { services, client_name, phone_number, Branch_id } = req.body;
+
+    if (!Branch_id) {
+      return res.status(400).json({ message: 'Branch_id is required.' });
+    }
 
     if (!Array.isArray(services) || services.length === 0) {
       return res.status(400).json({ message: 'Services should be a non-empty array.' });
     }
 
-    // Get current date for validation
     const currentDate = new Date();
 
     // Validate each service for overlapping designer bookings
@@ -31,10 +34,7 @@ exports.createSession = async (req, res) => {
       // Query to find any overlapping bookings for the same designer
       const overlappingSession = await Session.findOne({
         "services.designer_id": designer_id,
-        $or: [
-          { "services.service_start_time": { $lt: endTime, $gte: startTime } },
-          { "services.service_end_time": { $gt: startTime, $lte: endTime } }
-        ]
+        "services.service_start_time": { $lt: endTime, $gte: startTime }
       });
 
       if (overlappingSession) {
@@ -44,8 +44,14 @@ exports.createSession = async (req, res) => {
       }
     }
 
+    // Check if client exists by phone number, create if not
+    let client = await Client.findOne({ phone_number });
+    if (!client) {
+      client = await Client.create({ phone_number, client_name });
+    }
+
     // Proceed to create session if no overlaps
-    const session = new Session({ client_name, services });
+    const session = new Session({ client_name, Branch_id, services, client: client._id });
     await session.save();
     res.status(201).json({ message: 'Session created successfully', session });
   } catch (error) {
