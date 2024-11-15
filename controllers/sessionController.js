@@ -20,18 +20,30 @@ exports.createSession = async (req, res) => {
 
     const currentDate = new Date();
 
-    // Validate each service for overlapping designer bookings
-    for (let service of services) {
-      const { service_start_time, designer_id } = service;
+    // Check for internal overlaps within the provided services array
+    for (let i = 0; i < services.length; i++) {
+      const { service_start_time, designer_id } = services[i];
       const startTime = new Date(service_start_time);
+      const endTime = new Date(startTime.getTime() + 45 * 60000);
 
       if (isNaN(startTime.getTime()) || startTime < currentDate) {
         return res.status(400).json({ message: 'Each service must have a valid future start time.' });
       }
 
-      const endTime = new Date(startTime.getTime() + 45 * 60000);
+      // Check for overlap within the same request's services
+      for (let j = i + 1; j < services.length; j++) {
+        if (
+          services[j].designer_id === designer_id &&
+          new Date(services[j].service_start_time) < endTime &&
+          new Date(services[j].service_start_time) >= startTime
+        ) {
+          return res.status(400).json({
+            message: `Designer ${designer_id} is double-booked within the same session at ${startTime.toISOString()}`
+          });
+        }
+      }
 
-      // Query to find any overlapping bookings for the same designer
+      // Query to find any overlapping bookings across sessions
       const overlappingSession = await Session.findOne({
         "services.designer_id": designer_id,
         "services.service_start_time": { $lt: endTime, $gte: startTime }
@@ -44,12 +56,13 @@ exports.createSession = async (req, res) => {
       }
     }
 
-    // Check if client exists by phone number, create if not
+    // Check if client exists by phone number
     let client = await Customer.findOne({ phone_number });
     if (!client) {
- return res.status(400).json({
-          message: `please check the client if he created`
-        });    }
+      return res.status(400).json({
+        message: 'Please check if the client exists or create the client first.'
+      });
+    }
 
     // Proceed to create session if no overlaps
     const session = new Session({ client_name, Branch_id, services, client: client._id });
@@ -59,6 +72,7 @@ exports.createSession = async (req, res) => {
     res.status(500).json({ message: 'Error creating session', error: error.message });
   }
 };
+
 
 exports.getAllSessions = async (req, res) => {
   try {
@@ -284,9 +298,9 @@ exports.updateServiceInSession = async (req, res) => {
       return res.status(404).json({ message: 'Service not found in session' });
     }
 
-    // Internal overlap check
+    // Internal overlap check within the same session
     const internalOverlap = session.services.some(svc =>
-      svc._id !== serviceId &&
+      svc._id.toString() !== serviceId &&
       svc.designer_id === designer_id &&
       new Date(svc.service_start_time) < endTime &&
       new Date(svc.service_end_time) > startTime
@@ -310,6 +324,7 @@ exports.updateServiceInSession = async (req, res) => {
       return res.status(400).json({ message: 'Designer is already booked during the specified time slot in another session.' });
     }
 
+    // Update service details if no conflicts found
     service._id = newService._id;
     service.service_name = newService.service_name;
     service.service_start_time = startTime.toISOString();
