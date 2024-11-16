@@ -396,11 +396,20 @@ exports.deleteServiceFromSession = async (req, res) => {
 exports.findServiceInSessionById = async (req, res) => {
   try {
     const { serviceId } = req.params;
-    const service = await Service.findById(serviceId);
-    if (!service) throw new Error("Service not found in session");
-    res.json(service);
+
+    // Find sessions where the specified service ID is present in the services array
+    const session = await Session.findOne({ "services._id": serviceId });
+
+    if (!session) {
+      return res.status(404).json({ error: "Service not found in any session" });
+    }
+
+    // Extract the specific service from the session
+    const service = session.services.id(serviceId);
+    
+    res.status(200).json({ message: 'Service found', service });
   } catch (error) {
-    res.status(404).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
