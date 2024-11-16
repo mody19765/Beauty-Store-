@@ -325,21 +325,30 @@ exports.updateServiceInSession = async (req, res) => {
     }
 
     // Update service details if no conflicts found
-    service._id = newService._id;
+    service.service_id = newService._id;
     service.service_name = newService.service_name;
     service.service_start_time = startTime.toISOString();
     service.service_end_time = endTime.toISOString();
     service.designer_id = designer_id;
 
+    // Save session and confirm
     await session.save();
+
     await logHistory({
       userId: req.user._id,
       action: `Updated service ${serviceId} in session ${sessionId}`,
       timestamp: new Date(),
       details: `Updated to new service: ${newService._id}, start_time: ${service.service_start_time}, end_time: ${service.service_end_time}, designer_id: ${designer_id}`
     });
+
+    console.log('Service updated successfully:', {
+      session,
+      updatedService: service
+    });
+
     res.status(200).json({ message: 'Service updated successfully', session });
   } catch (error) {
+    console.error('Error updating service:', error);
     res.status(500).json({ message: 'Error updating service', error: error.message });
   }
 };
