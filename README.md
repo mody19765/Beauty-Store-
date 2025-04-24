@@ -96,7 +96,7 @@ Beauty-Store/
 ## 📫 Contact
 
 Mostafa Mody  
-Email: [mody.dev19765@gmail.com](mailto:mody.dev19765@gmail.com)  
+Email: [mody.dev19765@gmail.com](mailto:mody.19765@gmail.com)  
 GitHub: [https://github.com/mody19765](https://github.com/mody19765)
 
 ## ⭐️ Support
