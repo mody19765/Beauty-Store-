@@ -1,42 +1,104 @@
-# Beauty Store Management System
+# 💄 Beauty Store API
 
-This web-based application is designed to manage beauty store operations efficiently, focusing on customer bookings, services, employee scheduling, and branch management. The app helps streamline day-to-day activities, improve service delivery, and ensure smooth business operations.
+A powerful and modular e-commerce backend for a Beauty Store, built with Node.js, Express, and PostgreSQL. Supports full authentication, role-based access (admin & user), product/category management, and wishlist features.
 
-## Key Features:
-- **Customer Booking System**: Enables customers to easily book services, view available time slots, and receive confirmations.
-- **Service and Staff Management**: Provides a backend interface for managing services, scheduling, and assigning tasks to employees.
-- **Branch Operations**: Allows administrators to manage different branches, including staff allocation, service offerings, and scheduling.
-- **Search and Filter**: Integrated advanced search functionality to quickly find customer records, service details, and appointments.
-- **Authentication**: Secure user authentication for both customers and staff to ensure privacy and data security.
+## 🚀 Features
 
-## Technologies Used:
-- **Backend**: Node.js, Express.js
-- **Database**: MongoDB with Mongoose for schema management and data validation
-- **Email**: Nodemailer for sending emails
-- **Authentication**: JWT for secure user access and token-based authentication
-- **Other**: RESTful API architecture, advanced search and filtering logic
+- JWT Authentication (Login / Signup)
+- Roles: `admin` & `user`
+- Admin functionalities:
+  - Add/edit/delete users
+  - Manage products and categories
+- User functionalities:
+  - View products and categories
+  - Add/remove items from wishlist
+- Password reset via email
+- 3-level category nesting
+- PostgreSQL with Sequelize ORM
 
-## Installation:
-1. Clone the repository:
-    ```bash
-    git clone https://github.com/your-username/Beauty-Store-Management-System.git
-    ```
-2. Install dependencies:
-    ```bash
-    cd Beauty-Store-Management-System
-    npm install
-    ```
-3. Set up environment variables (e.g., database connection, email settings) in a `.env` file.
+## 📁 Project Structure
 
-4. Run the app:
-    ```bash
-    npm start
-    ```
+Beauty-Store/
+├── config/         → PostgreSQL connection setup  
+├── controllers/    → Route logic for auth, users, products, etc.  
+├── middlewares/    → Auth, role-based checks  
+├── models/         → Sequelize models  
+├── routes/         → Express API routes  
+├── services/       → Core business logic  
+├── utils/          → Token/email helpers  
+└── index.js        → App entry point  
 
-## Usage:
-- Customers can book services, view available slots, and receive booking confirmations.
-- Admins can manage services, employees, and branches.
-- JWT authentication ensures secure user access to the system.
+## 🔧 Installation
 
-## License:
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+1. Clone the repo:  
+   `git clone https://github.com/mody19765/Beauty-Store-.git`  
+   `cd Beauty-Store-`
+
+2. Install dependencies:  
+   `npm install`
+
+3. Create `.env` file:
+
+4. Start the app:  
+`npm start`
+
+## 🔑 API Endpoints
+
+### Auth Routes
+- `POST /signup` → Register new user  
+- `POST /login` → Login and receive JWT  
+- `POST /forgot-password` → Send reset link via email  
+- `POST /reset-password` → Reset password with token  
+
+### Admin Routes (requires `admin` role)
+- `POST /admin/users` → Add user  
+- `GET /admin/users` → List users  
+- `PATCH /admin/users/:id` → Update user  
+- `DELETE /admin/users/:id` → Delete user  
+
+- `POST /admin/products` → Add product  
+- `PATCH /admin/products/:id` → Update product  
+- `DELETE /admin/products/:id` → Delete product  
+
+- `POST /admin/categories` → Add category (with nesting)  
+- `PATCH /admin/categories/:id` → Update category  
+- `DELETE /admin/categories/:id` → Delete category  
+
+### User Routes
+- `GET /products` → View all products  
+- `GET /categories` → View all categories  
+- `POST /wishlist` → Add product to wishlist  
+- `GET /wishlist` → View wishlist  
+- `DELETE /wishlist/:id` → Remove product from wishlist  
+- `PATCH /profile` → Update user info  
+
+## 📦 Database Models
+
+**User**  
+- id, name, email, password (hashed), role (`admin` | `user`)
+
+**Product**  
+- id, name, description, price, image, categoryId
+
+**Category**  
+- id, name, parentCategoryId (nullable for nesting)
+
+**Wishlist**  
+- id, userId, productId
+
+## ✅ Upcoming Features
+
+- Admin dashboard with stats  
+- Product search and filters  
+- Product image upload via cloud storage  
+- Swagger API documentation  
+
+## 📫 Contact
+
+Mostafa Mody  
+Email: [mody.dev19765@gmail.com](mailto:mody.dev19765@gmail.com)  
+GitHub: [https://github.com/mody19765](https://github.com/mody19765)
+
+## ⭐️ Support
+
+If you like this project, don’t forget to ⭐️ the repo and share it!
